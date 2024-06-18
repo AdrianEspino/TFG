@@ -1,110 +1,74 @@
 import requests
 from bs4 import BeautifulSoup
 import tkinter as tk
-from tkinter import scrolledtext, messagebox
+from tkinter import ttk, messagebox
+from tkinter.scrolledtext import ScrolledText
 from urllib.parse import urljoin
 from io import BytesIO
 from PIL import Image, ImageTk
 import webbrowser
 
-def fetch_url_content(url):
+def scrape_website(url):
     try:
         response = requests.get(url)
         response.raise_for_status()
-        return response.text, url
+        soup = BeautifulSoup(response.text, 'html.parser')
+
+        title = soup.title.string if soup.title else 'No title found'
+        paragraphs = [p.text for p in soup.find_all('p')]
+        links = [{'text': a.get_text(), 'url': urljoin(url, a['href'])} for a in soup.find_all('a', href=True)]
+        images = [{'alt': img.get('alt', ''), 'src': urljoin(url, img['src'])} for img in soup.find_all('img', src=True)]
+
+        return {
+            'title': title,
+            'paragraphs': paragraphs,
+            'links': links,
+            'images': images
+        }
     except requests.RequestException as e:
-        messagebox.showerror("Error", f"Error fetching data from URL: {e}")
-        return None, None
+        return f"Error: {e}"
 
-def extract_information(html_content, base_url):
-    soup = BeautifulSoup(html_content, 'html.parser')
+def fetch_data():
+    url = url_entry.get()
+    if not url:
+        messagebox.showwarning("Input Error", "Please enter a URL")
+        return
     
-    # Title
-    title = soup.title.string if soup.title else "No title found"
-    
-    # Paragraphs
-    paragraphs = [p.get_text() for p in soup.find_all('p')]
-    
-    # Headers
-    headers = [h.get_text() for h in soup.find_all(['h1', 'h2', 'h3', 'h4', 'h5', 'h6'])]
-    
-    # Links
-    links = [{'text': a.get_text(), 'url': urljoin(base_url, a['href'])} for a in soup.find_all('a', href=True)]
-    
-    # Images
-    images = [{'alt': img.get('alt', ''), 'src': urljoin(base_url, img['src'])} for img in soup.find_all('img', src=True)]
-    
-    # Tables
-    tables = []
-    for table in soup.find_all('table'):
-        rows = []
-        for row in table.find_all('tr'):
-            cells = [cell.get_text() for cell in row.find_all(['td', 'th'])]
-            rows.append(cells)
-        tables.append(rows)
-    
-    return {
-        "title": title,
-        "paragraphs": paragraphs,
-        "headers": headers,
-        "links": links,
-        "images": images,
-        "tables": tables
-    }
+    data = scrape_website(url)
+    if isinstance(data, str):
+        result_text.delete('1.0', tk.END)
+        result_text.insert(tk.END, data)
+    else:
+        result_text.delete('1.0', tk.END)
+        result_text.insert(tk.END, f"Title: {data['title']}\n\n")
+        result_text.insert(tk.END, "Paragraphs:\n")
+        for para in data['paragraphs']:
+            result_text.insert(tk.END, f"{para}\n\n")
+        result_text.insert(tk.END, "Links:\n")
+        for index, link in enumerate(data['links']):
+            insert_link(result_text, link['url'], link['text'], index)
+        result_text.insert(tk.END, "Images:\n")
+        for index, image in enumerate(data['images']):
+            insert_image(result_text, image['src'], image['alt'], index)
 
-def display_url_info(info):
-    result_window = tk.Toplevel(root)
-    result_window.title("URL Information")
-    
-    text_widget = scrolledtext.ScrolledText(result_window, wrap=tk.WORD, width=100, height=40)
-    text_widget.pack(expand=True, fill='both')
+def insert_link(text_widget, url, text, index):
+    tag_name = f"link{index}"
+    text_widget.insert(tk.END, f"{text} - {url}\n", tag_name)
+    text_widget.tag_bind(tag_name, "<Button-1>", lambda e, url=url: open_link(url))
+    text_widget.tag_config(tag_name, foreground="blue", underline=True)
+    text_widget.tag_bind(tag_name, "<Enter>", lambda e: text_widget.config(cursor="hand2"))
+    text_widget.tag_bind(tag_name, "<Leave>", lambda e: text_widget.config(cursor=""))
 
-    text_widget.insert(tk.END, f"Title: {info['title']}\n\n")
-    
-    text_widget.insert(tk.END, "Headers:\n")
-    for header in info['headers']:
-        text_widget.insert(tk.END, f"{header}\n")
-    
-    text_widget.insert(tk.END, "\nParagraphs:\n")
-    for paragraph in info['paragraphs']:
-        text_widget.insert(tk.END, f"{paragraph}\n")
-
-    text_widget.insert(tk.END, "\nLinks:\n")
-    for link in info['links']:
-        link_text = f"{link['text']} - {link['url']}\n"
-        start = text_widget.index(tk.END)
-        text_widget.insert(tk.END, link_text)
-        end = text_widget.index(tk.END)
-        # Use a unique tag for each link to ensure the event binds correctly
-        tag_name = f"link-{link['url']}"
-        text_widget.tag_add(tag_name, start, end)
-        text_widget.tag_bind(tag_name, '<Button-1>', lambda e, url=link['url']: open_link(url))
-        text_widget.tag_bind(tag_name, '<Enter>', lambda e: text_widget.config(cursor="hand2"))
-        text_widget.tag_bind(tag_name, '<Leave>', lambda e: text_widget.config(cursor=""))
-
-    text_widget.insert(tk.END, "\nImages:\n")
-    for image in info['images']:
-        image_text = f"{image['alt']} - {image['src']}\n"
-        start = text_widget.index(tk.END)
-        text_widget.insert(tk.END, image_text)
-        end = text_widget.index(tk.END)
-        # Use a unique tag for each image to ensure the event binds correctly
-        tag_name = f"image-{image['src']}"
-        text_widget.tag_add(tag_name, start, end)
-        text_widget.tag_bind(tag_name, '<Button-1>', lambda e, url=image['src']: show_image(url))
-        text_widget.tag_bind(tag_name, '<Enter>', lambda e: text_widget.config(cursor="hand2"))
-        text_widget.tag_bind(tag_name, '<Leave>', lambda e: text_widget.config(cursor=""))
-
-    text_widget.insert(tk.END, "\nTables:\n")
-    for table in info['tables']:
-        for row in table:
-            text_widget.insert(tk.END, "\t".join(row) + "\n")
-        text_widget.insert(tk.END, "\n")
-    
-    text_widget.configure(state='disabled')
+def insert_image(text_widget, url, alt_text, index):
+    tag_name = f"image{index}"
+    text_widget.insert(tk.END, f"{alt_text} - {url}\n", tag_name)
+    text_widget.tag_bind(tag_name, "<Button-1>", lambda e, url=url: show_image(url))
+    text_widget.tag_config(tag_name, foreground="green", underline=True)
+    text_widget.tag_bind(tag_name, "<Enter>", lambda e: text_widget.config(cursor="hand2"))
+    text_widget.tag_bind(tag_name, "<Leave>", lambda e: text_widget.config(cursor=""))
 
 def open_link(url):
-    webbrowser.open(url)
+    webbrowser.open_new(url)
 
 def show_image(url):
     image_window = tk.Toplevel(root)
@@ -126,29 +90,31 @@ def show_image(url):
     except Exception as e:
         messagebox.showerror("Error", f"Error displaying image: {e}")
 
-def on_fetch_url():
-    url = url_entry.get()
-    if not url.startswith("http://") and not url.startswith("https://"):
-        messagebox.showerror("Error", "Please enter a valid URL starting with http:// or https://")
-        return
-    
-    html_content, base_url = fetch_url_content(url)
-    if html_content:
-        info = extract_information(html_content, base_url)
-        display_url_info(info)
-
 # Setup the main application window
 root = tk.Tk()
-root.title("Web Scraper")
+root.title("Scientific Articles Scraper")
 
-# URL entry
-url_label = tk.Label(root, text="Enter URL:")
-url_label.pack(pady=5)
-url_entry = tk.Entry(root, width=50)
-url_entry.pack(pady=5)
+# Create a notebook for different scraping options
+notebook = ttk.Notebook(root)
+notebook.pack(expand=1, fill='both')
 
-# Fetch button
-fetch_button = tk.Button(root, text="Fetch URL Information", command=on_fetch_url)
-fetch_button.pack(pady=20)
+# Add a frame for each scraping option
+frames = {}
+for option in ["Arxiv", "Springer", "PubMed"]:
+    frame = ttk.Frame(notebook)
+    notebook.add(frame, text=option)
+    frames[option] = frame
+
+# Add search bar and button to each frame
+url_frame = ttk.Frame(frames["Arxiv"], padding="10")
+url_frame.pack(side=tk.TOP, fill=tk.X)
+ttk.Label(url_frame, text="Enter URL:").pack(side=tk.LEFT)
+url_entry = ttk.Entry(url_frame, width=50)
+url_entry.pack(side=tk.LEFT, fill=tk.X, expand=True)
+ttk.Button(url_frame, text="Scrape", command=fetch_data).pack(side=tk.LEFT)
+
+# Add result display area
+result_text = ScrolledText(frames["Arxiv"], wrap=tk.WORD, width=100, height=30)
+result_text.pack(fill=tk.BOTH, expand=True)
 
 root.mainloop()
