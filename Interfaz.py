@@ -2,6 +2,10 @@ import tkinter as tk
 from tkinter import ttk, messagebox
 from tkinter.scrolledtext import ScrolledText
 import webbrowser
+import requests
+from io import BytesIO
+from PIL import Image, ImageTk
+from urllib.parse import urljoin
 
 class App(tk.Tk):
     def __init__(self, scraper, arxiv_search, pubmed_search):
@@ -88,31 +92,42 @@ class App(tk.Tk):
 
     def display_data(self, data):
         self.result_text.delete('1.0', tk.END)
-        if isinstance(data, str):
-            self.result_text.insert(tk.END, data)
-        else:
+        if isinstance(data, dict):
             self.result_text.insert(tk.END, f"Title: {data['title']}\n\n")
             self.result_text.insert(tk.END, "Paragraphs:\n")
             for para in data['paragraphs']:
                 self.result_text.insert(tk.END, f"{para}\n\n")
             self.result_text.insert(tk.END, "Links:\n")
             for index, link in enumerate(data['links']):
-                self.insert_link(self.result_text, link['url'], link['text'], index)
+                self.insert_link(self.result_text, link, index)
             self.result_text.insert(tk.END, "Images:\n")
             for index, image in enumerate(data['images']):
-                self.insert_image(self.result_text, image['src'], image['alt'], index)
+                self.insert_image(self.result_text, image, index)
+        elif isinstance(data, list):
+            for index, item in enumerate(data):
+                self.result_text.insert(tk.END, f"Title: {item['title']}\n")
+                if 'summary' in item:
+                    self.result_text.insert(tk.END, f"Summary: {item['summary']}\n")
+                if 'abstract' in item:
+                    self.result_text.insert(tk.END, f"Abstract: {item['abstract']}\n")
+                self.insert_link(self.result_text, item['link'], index)
+                self.result_text.insert(tk.END, "\n")
 
-    def insert_link(self, text_widget, url, text, index):
+    def insert_link(self, text_widget, url, index):
+        if isinstance(url, dict) and 'href' in url:
+            url = url['href']
         tag_name = f"link{index}"
-        text_widget.insert(tk.END, f"{text} - {url}\n", tag_name)
+        text_widget.insert(tk.END, url + "\n", tag_name)
         text_widget.tag_bind(tag_name, "<Button-1>", lambda e, url=url: self.open_link(url))
         text_widget.tag_config(tag_name, foreground="blue", underline=True)
         text_widget.tag_bind(tag_name, "<Enter>", lambda e: text_widget.config(cursor="hand2"))
         text_widget.tag_bind(tag_name, "<Leave>", lambda e: text_widget.config(cursor=""))
 
-    def insert_image(self, text_widget, url, alt_text, index):
+    def insert_image(self, text_widget, url, index):
+        if isinstance(url, dict) and 'src' in url:
+            url = url['src']
         tag_name = f"image{index}"
-        text_widget.insert(tk.END, f"{alt_text} - {url}\n", tag_name)
+        text_widget.insert(tk.END, f"{url}\n", tag_name)
         text_widget.tag_bind(tag_name, "<Button-1>", lambda e, url=url: self.show_image(url))
         text_widget.tag_config(tag_name, foreground="green", underline=True)
         text_widget.tag_bind(tag_name, "<Enter>", lambda e: text_widget.config(cursor="hand2"))
@@ -129,7 +144,6 @@ class App(tk.Tk):
             response = requests.get(url, stream=True)
             response.raise_for_status()
             img_data = response.content
-
             img = Image.open(BytesIO(img_data))
             img_tk = ImageTk.PhotoImage(img)
 
