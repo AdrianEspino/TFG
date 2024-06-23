@@ -175,6 +175,9 @@ splash = tk.Toplevel()
 splash.title("Welcome")
 splash.geometry("500x300")
 
+# Make the splash screen fullscreen
+splash.attributes("-fullscreen", True)
+
 splash_label = tk.Label(splash, text="Welcome to the Web Scraper!", font=("Helvetica", 18))
 splash_label.pack(expand=True)
 
