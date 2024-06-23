@@ -1,152 +1,176 @@
 import tkinter as tk
 from tkinter import ttk, messagebox
 from tkinter.scrolledtext import ScrolledText
-import webbrowser
+from PIL import Image, ImageTk
 import requests
 from io import BytesIO
-from PIL import Image, ImageTk
-from urllib.parse import urljoin
+import webbrowser
+from Funcionalidades import scrape_website, search_arxiv, search_pubmed
 
 class App(tk.Tk):
-    def __init__(self, scraper, arxiv_search, pubmed_search):
+    def __init__(self, scrape_website_func, search_arxiv_func, search_pubmed_func):
         super().__init__()
-        self.scraper = scraper
-        self.arxiv_search = arxiv_search
-        self.pubmed_search = pubmed_search
+        self.scrape_website = scrape_website_func
+        self.search_arxiv = search_arxiv_func
+        self.search_pubmed = search_pubmed_func
+        
         self.title("Web Scraper")
-        self.geometry("800x600")
+        self.geometry("900x600")
+        self.configure(bg="#f0f0f0")
 
-        self.create_widgets()
+        self.show_start_screen()
 
-    def create_widgets(self):
-        self.menu_frame = ttk.Frame(self, padding="10")
-        self.menu_frame.grid(row=0, column=0, sticky=(tk.N, tk.S, tk.W, tk.E))
+    def show_start_screen(self):
+        start_frame = tk.Frame(self, bg="#f0f0f0")
+        start_frame.pack(expand=True, fill="both")
 
-        ttk.Button(self.menu_frame, text="Web Scraper", command=self.show_scraper).grid(row=0, column=0, sticky=tk.W)
-        ttk.Button(self.menu_frame, text="Arxiv", command=self.show_arxiv).grid(row=1, column=0, sticky=tk.W)
-        ttk.Button(self.menu_frame, text="PubMed", command=self.show_pubmed).grid(row=2, column=0, sticky=tk.W)
+        title_label = tk.Label(start_frame, text="Web Scraper", font=("Arial", 32, "bold"), bg="#f0f0f0", fg="#333")
+        title_label.pack(pady=50)
 
-        self.content_frame = ttk.Frame(self, padding="10")
-        self.content_frame.grid(row=0, column=1, sticky=(tk.N, tk.S, tk.W, tk.E))
-        
-        self.url_label = ttk.Label(self.content_frame, text="Enter URL:")
-        self.url_entry = ttk.Entry(self.content_frame, width=50)
-        self.scrape_button = ttk.Button(self.content_frame, text="Scrape", command=self.fetch_data)
-        self.result_text = ScrolledText(self.content_frame, wrap=tk.WORD, width=80, height=20)
+        start_button = tk.Button(start_frame, text="Iniciar", font=("Arial", 20), bg="#0078D7", fg="white", command=self.show_main_screen)
+        start_button.pack(pady=20)
 
-        self.query_label = ttk.Label(self.content_frame, text="Enter Query:")
-        self.query_entry = ttk.Entry(self.content_frame, width=50)
-        self.arxiv_button = ttk.Button(self.content_frame, text="Search Arxiv", command=self.search_arxiv)
-        self.pubmed_button = ttk.Button(self.content_frame, text="Search PubMed", command=self.search_pubmed)
-        
-        self.show_scraper()
+    def show_main_screen(self):
+        for widget in self.winfo_children():
+            widget.destroy()
 
-    def show_scraper(self):
-        self.clear_content()
-        self.url_label.grid(row=0, column=0, sticky=tk.W)
-        self.url_entry.grid(row=0, column=1, sticky=(tk.W, tk.E))
-        self.scrape_button.grid(row=0, column=2, sticky=tk.E)
-        self.result_text.grid(row=1, column=0, columnspan=3, sticky=(tk.N, tk.S, tk.W, tk.E))
+        main_frame = tk.Frame(self, bg="#f0f0f0")
+        main_frame.pack(expand=True, fill="both")
 
-    def show_arxiv(self):
-        self.clear_content()
-        self.query_label.grid(row=0, column=0, sticky=tk.W)
-        self.query_entry.grid(row=0, column=1, sticky=(tk.W, tk.E))
-        self.arxiv_button.grid(row=0, column=2, sticky=tk.E)
-        self.result_text.grid(row=1, column=0, columnspan=3, sticky=(tk.N, tk.S, tk.W, tk.E))
+        sidebar = tk.Frame(main_frame, bg="#0078D7", width=200)
+        sidebar.pack(fill="y", side="left")
 
-    def show_pubmed(self):
-        self.clear_content()
-        self.query_label.grid(row=0, column=0, sticky=tk.W)
-        self.query_entry.grid(row=0, column=1, sticky=(tk.W, tk.E))
-        self.pubmed_button.grid(row=0, column=2, sticky=tk.E)
-        self.result_text.grid(row=1, column=0, columnspan=3, sticky=(tk.N, tk.S, tk.W, tk.E))
+        content_frame = tk.Frame(main_frame, bg="#f0f0f0")
+        content_frame.pack(expand=True, fill="both", side="left")
 
-    def clear_content(self):
-        for widget in self.content_frame.winfo_children():
-            widget.grid_forget()
+        button_styles = {"font": ("Arial", 14), "bg": "#0078D7", "fg": "white", "activebackground": "#005bb5"}
+
+        scrape_button = tk.Button(sidebar, text="Web Scraper", **button_styles, command=lambda: self.show_scrape_frame(content_frame))
+        scrape_button.pack(pady=10, padx=10, fill="x")
+
+        arxiv_button = tk.Button(sidebar, text="Arxiv", **button_styles, command=lambda: self.show_arxiv_frame(content_frame))
+        arxiv_button.pack(pady=10, padx=10, fill="x")
+
+        pubmed_button = tk.Button(sidebar, text="PubMed", **button_styles, command=lambda: self.show_pubmed_frame(content_frame))
+        pubmed_button.pack(pady=10, padx=10, fill="x")
+
+        self.show_scrape_frame(content_frame)
+
+    def show_scrape_frame(self, parent):
+        for widget in parent.winfo_children():
+            widget.destroy()
+
+        url_frame = tk.Frame(parent, bg="#f0f0f0", padx=10, pady=10)
+        url_frame.pack(fill="x")
+
+        tk.Label(url_frame, text="Enter URL:", bg="#f0f0f0", font=("Arial", 14)).pack(side="left", padx=5)
+        self.url_entry = tk.Entry(url_frame, font=("Arial", 14), width=50)
+        self.url_entry.pack(side="left", padx=5)
+        tk.Button(url_frame, text="Scrape", font=("Arial", 14), bg="#0078D7", fg="white", command=self.fetch_data).pack(side="left", padx=5)
+
+        self.result_text = ScrolledText(parent, wrap=tk.WORD, font=("Arial", 12), bg="#ffffff")
+        self.result_text.pack(expand=True, fill="both", padx=10, pady=10)
+
+    def show_arxiv_frame(self, parent):
+        for widget in parent.winfo_children():
+            widget.destroy()
+
+        query_frame = tk.Frame(parent, bg="#f0f0f0", padx=10, pady=10)
+        query_frame.pack(fill="x")
+
+        tk.Label(query_frame, text="Enter Arxiv Query:", bg="#f0f0f0", font=("Arial", 14)).pack(side="left", padx=5)
+        self.arxiv_query_entry = tk.Entry(query_frame, font=("Arial", 14), width=50)
+        self.arxiv_query_entry.pack(side="left", padx=5)
+        tk.Button(query_frame, text="Search", font=("Arial", 14), bg="#0078D7", fg="white", command=self.perform_search_arxiv).pack(side="left", padx=5)
+
+        self.result_text = ScrolledText(parent, wrap=tk.WORD, font=("Arial", 12), bg="#ffffff")
+        self.result_text.pack(expand=True, fill="both", padx=10, pady=10)
+
+    def show_pubmed_frame(self, parent):
+        for widget in parent.winfo_children():
+            widget.destroy()
+
+        query_frame = tk.Frame(parent, bg="#f0f0f0", padx=10, pady=10)
+        query_frame.pack(fill="x")
+
+        tk.Label(query_frame, text="Enter PubMed Query:", bg="#f0f0f0", font=("Arial", 14)).pack(side="left", padx=5)
+        self.pubmed_query_entry = tk.Entry(query_frame, font=("Arial", 14), width=50)
+        self.pubmed_query_entry.pack(side="left", padx=5)
+        tk.Button(query_frame, text="Search", font=("Arial", 14), bg="#0078D7", fg="white", command=self.perform_search_pubmed).pack(side="left", padx=5)
+
+        self.result_text = ScrolledText(parent, wrap=tk.WORD, font=("Arial", 12), bg="#ffffff")
+        self.result_text.pack(expand=True, fill="both", padx=10, pady=10)
 
     def fetch_data(self):
         url = self.url_entry.get()
         if not url:
             messagebox.showwarning("Input Error", "Please enter a URL")
             return
-        data = self.scraper(url)
+
+        data = self.scrape_website(url)
         self.display_data(data)
 
-    def search_arxiv(self):
-        query = self.query_entry.get()
+    def perform_search_arxiv(self):
+        query = self.arxiv_query_entry.get()
         if not query:
-            messagebox.showwarning("Input Error", "Please enter a query")
+            messagebox.showwarning("Input Error", "Please enter an Arxiv query")
             return
-        data = self.arxiv_search(query)
+
+        data = self.search_arxiv(query)
         self.display_data(data)
 
-    def search_pubmed(self):
-        query = self.query_entry.get()
+    def perform_search_pubmed(self):
+        query = self.pubmed_query_entry.get()
         if not query:
-            messagebox.showwarning("Input Error", "Please enter a query")
+            messagebox.showwarning("Input Error", "Please enter a PubMed query")
             return
-        data = self.pubmed_search(query)
+
+        data = self.search_pubmed(query)
         self.display_data(data)
 
     def display_data(self, data):
-        self.result_text.delete('1.0', tk.END)
-        if isinstance(data, dict):
+        self.result_text.delete(1.0, tk.END)
+
+        if isinstance(data, str):
+            self.result_text.insert(tk.END, data)
+            return
+
+        if 'title' in data:
             self.result_text.insert(tk.END, f"Title: {data['title']}\n\n")
-            self.result_text.insert(tk.END, "Paragraphs:\n")
-            for para in data['paragraphs']:
-                self.result_text.insert(tk.END, f"{para}\n\n")
-            self.result_text.insert(tk.END, "Links:\n")
-            for index, link in enumerate(data['links']):
-                self.insert_link(self.result_text, link, index)
+            self.result_text.insert(tk.END, f"Content:\n{data['content']}\n\n")
             self.result_text.insert(tk.END, "Images:\n")
-            for index, image in enumerate(data['images']):
-                self.insert_image(self.result_text, image, index)
-        elif isinstance(data, list):
-            for index, item in enumerate(data):
+            for img_url in data['images']:
+                self.result_text.insert(tk.END, img_url + "\n")
+        else:
+            for item in data:
                 self.result_text.insert(tk.END, f"Title: {item['title']}\n")
-                if 'summary' in item:
-                    self.result_text.insert(tk.END, f"Summary: {item['summary']}\n")
-                if 'abstract' in item:
-                    self.result_text.insert(tk.END, f"Abstract: {item['abstract']}\n")
-                self.insert_link(self.result_text, item['link'], index)
-                self.result_text.insert(tk.END, "\n")
+                self.result_text.insert(tk.END, f"Authors: {item['authors']}\n")
+                self.result_text.insert(tk.END, f"Summary: {item['summary']}\n")
+                self.result_text.insert(tk.END, "Links:\n")
+                for link in item['links']:
+                    self.insert_link(self.result_text, link)
+                self.result_text.insert(tk.END, "PDFs:\n")
+                for pdf in item['pdfs']:
+                    self.insert_link(self.result_text, pdf)
+                self.result_text.insert(tk.END, "\n\n")
 
-    def insert_link(self, text_widget, url, index):
-        if isinstance(url, dict) and 'href' in url:
-            url = url['href']
-        tag_name = f"link{index}"
-        text_widget.insert(tk.END, url + "\n", tag_name)
-        text_widget.tag_bind(tag_name, "<Button-1>", lambda e, url=url: self.open_link(url))
+    def insert_link(self, text_widget, url):
+        tag_name = "link" + str(hash(url))
         text_widget.tag_config(tag_name, foreground="blue", underline=True)
-        text_widget.tag_bind(tag_name, "<Enter>", lambda e: text_widget.config(cursor="hand2"))
-        text_widget.tag_bind(tag_name, "<Leave>", lambda e: text_widget.config(cursor=""))
+        text_widget.tag_bind(tag_name, "<Button-1>", lambda e: webbrowser.open_new(url))
+        text_widget.insert(tk.END, url + "\n", tag_name)
 
-    def insert_image(self, text_widget, url, index):
-        if isinstance(url, dict) and 'src' in url:
-            url = url['src']
-        tag_name = f"image{index}"
-        text_widget.insert(tk.END, f"{url}\n", tag_name)
-        text_widget.tag_bind(tag_name, "<Button-1>", lambda e, url=url: self.show_image(url))
-        text_widget.tag_config(tag_name, foreground="green", underline=True)
-        text_widget.tag_bind(tag_name, "<Enter>", lambda e: text_widget.config(cursor="hand2"))
-        text_widget.tag_bind(tag_name, "<Leave>", lambda e: text_widget.config(cursor=""))
-
-    def open_link(self, url):
-        webbrowser.open_new(url)
-
-    def show_image(self, url):
-        image_window = tk.Toplevel(self)
-        image_window.title("Image Viewer")
-
+    def display_image(self, img_url):
         try:
-            response = requests.get(url, stream=True)
+            response = requests.get(img_url)
             response.raise_for_status()
             img_data = response.content
             img = Image.open(BytesIO(img_data))
+            img = img.resize((300, 300), Image.ANTIALIAS)
             img_tk = ImageTk.PhotoImage(img)
 
+            image_window = tk.Toplevel(self)
+            image_window.title("Image")
             image_label = tk.Label(image_window, image=img_tk)
             image_label.image = img_tk
             image_label.pack()
@@ -154,3 +178,7 @@ class App(tk.Tk):
             messagebox.showerror("Error", f"Error fetching image from URL: {e}")
         except Exception as e:
             messagebox.showerror("Error", f"Error displaying image: {e}")
+
+if __name__ == "__main__":
+    app = App(scrape_website, search_arxiv, search_pubmed)
+    app.mainloop()
