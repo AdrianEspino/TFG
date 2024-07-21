@@ -1,7 +1,7 @@
 import requests
 from bs4 import BeautifulSoup
 import tkinter as tk
-from tkinter import ttk, messagebox
+from tkinter import ttk, messagebox, filedialog
 from tkinter.scrolledtext import ScrolledText
 from urllib.parse import urljoin
 from io import BytesIO
@@ -9,72 +9,8 @@ from PIL import Image, ImageTk
 import webbrowser
 import feedparser
 import csv
+import os
 
-# Funciones de scraping
-def scrape_computer_journal(url):
-    try:
-        response = requests.get(url)
-        response.raise_for_status()
-        soup = BeautifulSoup(response.text, 'html.parser')
-
-        data = []
-        for item in soup.select('div.editor-data'):
-            editor = item.find('div', class_='editor-name').get_text(strip=True)
-            affiliation = item.find('div', class_='editor-affiliation').get_text(strip=True)
-            journal = 'Computer Journal'
-            issn = '0018-9286'
-            data.append([editor, affiliation, journal, issn, url])
-        return data
-    except requests.RequestException as e:
-        return f"Error: {e}"
-
-def scrape_jetc_editorial_board(url):
-    try:
-        response = requests.get(url)
-        response.raise_for_status()
-        soup = BeautifulSoup(response.text, 'html.parser')
-
-        data = []
-        for item in soup.select('div.editor'):
-            editor = item.find('h4').get_text(strip=True)
-            affiliation = item.find('p').get_text(strip=True)
-            journal = 'Journal on Emerging Technologies in Computing Systems (JETC)'
-            issn = '1550-4832'
-            data.append([editor, affiliation, journal, issn, url])
-        return data
-    except requests.RequestException as e:
-        return f"Error: {e}"
-
-def scrape_tnnls_editorial_board(url):
-    try:
-        response = requests.get(url)
-        response.raise_for_status()
-        soup = BeautifulSoup(response.text, 'html.parser')
-
-        data = []
-        for item in soup.select('div.editor'):
-            editor = item.find('h3').get_text(strip=True)
-            affiliation = item.find('p').get_text(strip=True)
-            journal = 'IEEE Transactions on Neural Networks and Learning Systems (TNNLS)'
-            issn = '2162-237X'
-            data.append([editor, affiliation, journal, issn, url])
-        return data
-    except requests.RequestException as e:
-        return f"Error: {e}"
-
-def export_data_to_csv(url, filename, data):
-    if data is None:
-        messagebox.showerror("Error", "No data to export.")
-        return
-
-    with open(filename, 'w', newline='', encoding='utf-8') as file:
-        writer = csv.writer(file)
-        writer.writerow(['Editor', 'Affiliation', 'Journal', 'ISSN', 'URL'])
-        for row in data:
-            writer.writerow(row)
-    messagebox.showinfo("Success", f"Data exported to {filename}")
-
-# Funciones de scraping general y búsqueda
 def scrape_website(url):
     try:
         response = requests.get(url)
@@ -100,7 +36,7 @@ def fetch_data():
     if not url:
         messagebox.showwarning("Input Error", "Please enter a URL")
         return
-
+    
     data = scrape_website(url)
     if isinstance(data, str):
         result_text.delete('1.0', tk.END)
@@ -140,15 +76,15 @@ def open_link(url):
 def show_image(url):
     image_window = tk.Toplevel(root)
     image_window.title("Image Viewer")
-
+    
     try:
         response = requests.get(url, stream=True)
         response.raise_for_status()
         img_data = response.content
-
+        
         img = Image.open(BytesIO(img_data))
         img_tk = ImageTk.PhotoImage(img)
-
+        
         image_label = tk.Label(image_window, image=img_tk)
         image_label.image = img_tk
         image_label.pack()
@@ -228,15 +164,82 @@ def start_application():
     root.deiconify()
     root.state('zoomed')  # Open in fullscreen mode
 
-# Setup the main application window
-root = tk.Tk()
-root.title("Web Scraper")
-root.geometry("1000x600")
+def fetch_editorial_board_data():
+    url = 'https://dl.acm.org/journal/jetc/editorial-board'
 
-# Hide the main window initially
+    try:
+        response = requests.get(url)
+        response.raise_for_status()
+        soup = BeautifulSoup(response.content, 'html.parser')
+
+        journal_name = soup.find('h1', class_='title').text.strip() if soup.find('h1', class_='title') else 'Journal Name Not Found'
+        data_list = []
+        roles = soup.find_all('h3', class_='section__title')
+        for role in roles:
+            role_text = role.text.strip()
+            next_sibling = role.find_next()
+            while next_sibling and next_sibling.name != 'h3':
+                if 'item-meta__info' in next_sibling.get('class', []):
+                    name = next_sibling.find('h4').text.strip() if next_sibling.find('h4') else ''
+                    affiliation = next_sibling.find('p').text.strip() if next_sibling.find('p') else ''
+                    country = next_sibling.find('span').text.strip() if next_sibling.find('span') else ''
+                    data_list.append([role_text, name, affiliation, country])
+                next_sibling = next_sibling.find_next()
+
+        # Save the CSV file
+        save_path = filedialog.asksaveasfilename(defaultextension=".csv", filetypes=[("CSV files", "*.csv")])
+        if save_path:
+            with open(save_path, 'w', newline='', encoding='utf-8') as csvfile:
+                writer = csv.writer(csvfile)
+                writer.writerow(['Journal Name'])
+                writer.writerow([journal_name])
+                writer.writerow(['Role', 'Name', 'Affiliation', 'Country'])
+                writer.writerows(data_list)
+
+            messagebox.showinfo("Success", f"The editorial board data has been saved to '{os.path.basename(save_path)}'.")
+
+    except requests.exceptions.RequestException as e:
+        messagebox.showerror("Error", f"Failed to fetch the editorial board data. Error: {e}")
+
+def show_editorial_board_data():
+    url = 'https://dl.acm.org/journal/jetc/editorial-board'
+
+    try:
+        response = requests.get(url)
+        response.raise_for_status()
+        soup = BeautifulSoup(response.content, 'html.parser')
+
+        journal_name = soup.find('h1', class_='title').text.strip() if soup.find('h1', class_='title') else 'Journal Name Not Found'
+        data_list = []
+        roles = soup.find_all('h3', class_='section__title')
+        for role in roles:
+            role_text = role.text.strip()
+            next_sibling = role.find_next()
+            while next_sibling and next_sibling.name != 'h3':
+                if 'item-meta__info' in next_sibling.get('class', []):
+                    name = next_sibling.find('h4').text.strip() if next_sibling.find('h4') else ''
+                    affiliation = next_sibling.find('p').text.strip() if next_sibling.find('p') else ''
+                    country = next_sibling.find('span').text.strip() if next_sibling.find('span') else ''
+                    data_list.append([role_text, name, affiliation, country])
+                next_sibling = next_sibling.find_next()
+
+        editorial_result_text.delete('1.0', tk.END)
+        editorial_result_text.insert(tk.END, f"Journal Name: {journal_name}\n\n")
+        for data in data_list:
+            editorial_result_text.insert(tk.END, f"Role: {data[0]}\n")
+            editorial_result_text.insert(tk.END, f"Name: {data[1]}\n")
+            editorial_result_text.insert(tk.END, f"Affiliation: {data[2]}\n")
+            editorial_result_text.insert(tk.END, f"Country: {data[3]}\n")
+            editorial_result_text.insert(tk.END, "\n")
+
+    except requests.exceptions.RequestException as e:
+        messagebox.showerror("Error", f"Failed to fetch the editorial board data. Error: {e}")
+
+root = tk.Tk()
+root.title("Web Scraper Application")
+root.geometry("1000x600")
 root.withdraw()
 
-# Create a splash screen
 splash = tk.Toplevel()
 splash.title("Welcome")
 splash.geometry("500x300")
@@ -260,7 +263,7 @@ main_content.pack(expand=True, fill="both", side="right")
 
 # Create frames for each section
 frames = {}
-for option in ["Web Scraper", "Arxiv", "PubMed", "Examples"]:
+for option in ["Web Scraper", "Arxiv", "PubMed", "Editorial Board"]:
     frame = tk.Frame(main_content, bg="white")
     frame.place(relwidth=1, relheight=1)
     frames[option] = frame
@@ -275,7 +278,7 @@ def add_sidebar_button(text, frame_name):
 add_sidebar_button("Web Scraper", "Web Scraper")
 add_sidebar_button("Arxiv", "Arxiv")
 add_sidebar_button("PubMed", "PubMed")
-add_sidebar_button("Examples", "Examples")
+add_sidebar_button("Editorial Board", "Editorial Board")
 
 # Add content to the Web Scraper frame
 url_frame = ttk.Frame(frames["Web Scraper"], padding="10")
@@ -284,7 +287,6 @@ ttk.Label(url_frame, text="Enter URL:").pack(side=tk.LEFT)
 url_entry = ttk.Entry(url_frame, width=50)
 url_entry.pack(side=tk.LEFT, fill=tk.X, expand=True)
 ttk.Button(url_frame, text="Scrape", command=fetch_data).pack(side=tk.LEFT)
-ttk.Button(url_frame, text="Export CSV", command=lambda: export_data_to_csv(url_entry.get(), "data.csv")).pack(side=tk.LEFT)
 
 result_text = ScrolledText(frames["Web Scraper"], wrap=tk.WORD, width=100, height=30)
 result_text.pack(fill=tk.BOTH, expand=True)
@@ -311,39 +313,17 @@ ttk.Button(pubmed_frame, text="Search", command=fetch_pubmed_data).pack(side=tk.
 pubmed_result_text = ScrolledText(frames["PubMed"], wrap=tk.WORD, width=100, height=30)
 pubmed_result_text.pack(fill=tk.BOTH, expand=True)
 
-# Add content to the Examples frame
-example_frame = ttk.Frame(frames["Examples"], padding="10")
-example_frame.pack(side=tk.TOP, fill=tk.X)
+# Add content to the Editorial Board frame
+editorial_frame = ttk.Frame(frames["Editorial Board"], padding="10")
+editorial_frame.pack(side=tk.TOP, fill=tk.X)
+ttk.Button(editorial_frame, text="Download Editorial Board CSV", command=fetch_editorial_board_data).pack(side=tk.LEFT)
+ttk.Button(editorial_frame, text="Show Editorial Board Data", command=show_editorial_board_data).pack(side=tk.LEFT)
+editorial_link = tk.Label(editorial_frame, text="https://dl.acm.org/journal/jetc/editorial-board", fg="blue", cursor="hand2")
+editorial_link.pack(side=tk.LEFT)
+editorial_link.bind("<Button-1>", lambda e: open_link("https://dl.acm.org/journal/jetc/editorial-board"))
 
-example_links = [
-    {"text": "Computer Journal", "url": "https://www.computer.org/csdl/journal/tp/about/107368", "filename": "computer_journal.csv", "scraper": scrape_computer_journal},
-    {"text": "JETC Editorial Board", "url": "https://dl.acm.org/journal/jetc/editorial-board", "filename": "jetc_editorial_board.csv", "scraper": scrape_jetc_editorial_board},
-    {"text": "TNNLS Editorial Board", "url": "https://cis.ieee.org/publications/t-neural-networks-and-learning-systems/tnnls-editor-and-associate-editors", "filename": "tnnls_editorial_board.csv", "scraper": scrape_tnnls_editorial_board},
-]
-
-def create_example_entry(parent, example):
-    frame = ttk.Frame(parent)
-    label = ttk.Label(frame, text=example["text"])
-    label.pack(side=tk.LEFT)
-    button = ttk.Button(frame, text="Export CSV", command=lambda: export_and_show_data(example))
-    button.pack(side=tk.LEFT)
-    frame.pack(fill=tk.X, pady=5)
-
-def export_and_show_data(example):
-    data = example["scraper"](example["url"])
-    if isinstance(data, str):
-        messagebox.showerror("Error", data)
-    else:
-        example_result_text.delete('1.0', tk.END)
-        for row in data:
-            example_result_text.insert(tk.END, f"Editor: {row[0]}, Affiliation: {row[1]}, Journal: {row[2]}, ISSN: {row[3]}, URL: {row[4]}\n")
-        export_data_to_csv(example["url"], example["filename"], data)
-
-example_result_text = ScrolledText(frames["Examples"], wrap=tk.WORD, width=100, height=30)
-example_result_text.pack(fill=tk.BOTH, expand=True)
-
-for example in example_links:
-    create_example_entry(example_frame, example)
+editorial_result_text = ScrolledText(frames["Editorial Board"], wrap=tk.WORD, width=100, height=30)
+editorial_result_text.pack(fill=tk.BOTH, expand=True)
 
 # Initially show the Web Scraper frame
 show_frame(frames["Web Scraper"])
