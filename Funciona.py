@@ -461,7 +461,7 @@ main_content.pack(expand=True, fill="both", side="right")
 
 # Create frames for each section
 frames = {}
-for option in ["Web Scraper", "Arxiv", "PubMed", "Editorial Board", "Editorial Board TNNLS"]:
+for option in ["Web Scraper", "Arxiv", "PubMed", "Editorial Board ACM", "Editorial Board TNNLS"]:
     frame = tk.Frame(main_content, bg="white")
     frame.place(relwidth=1, relheight=1)
     frames[option] = frame
@@ -476,7 +476,7 @@ def add_sidebar_button(text, frame_name):
 add_sidebar_button("Web Scraper", "Web Scraper")
 add_sidebar_button("Arxiv", "Arxiv")
 add_sidebar_button("PubMed", "PubMed")
-add_sidebar_button("Editorial Board", "Editorial Board")
+add_sidebar_button("Editorial Board ACM", "Editorial Board ACM")
 add_sidebar_button("Editorial Board TNNLS", "Editorial Board TNNLS")
 
 # Add content to the Web Scraper frame
@@ -513,7 +513,7 @@ pubmed_result_text = ScrolledText(frames["PubMed"], wrap=tk.WORD, width=100, hei
 pubmed_result_text.pack(fill=tk.BOTH, expand=True)
 
 # Add content to the Editorial Board frame
-editorial_frame = ttk.Frame(frames["Editorial Board"], padding="10")
+editorial_frame = ttk.Frame(frames["Editorial Board ACM"], padding="10")
 editorial_frame.pack(side=tk.TOP, fill=tk.X)
 ttk.Button(editorial_frame, text="Download Editorial Board CSV", command=fetch_editorial_board_data).pack(side=tk.LEFT)
 ttk.Button(editorial_frame, text="Show Editorial Board Data", command=show_editorial_board_data).pack(side=tk.LEFT)
@@ -521,7 +521,7 @@ editorial_link = tk.Label(editorial_frame, text="https://dl.acm.org/journal/jetc
 editorial_link.pack(side=tk.LEFT)
 editorial_link.bind("<Button-1>", lambda e: open_link("https://dl.acm.org/journal/jetc/editorial-board"))
 
-editorial_result_text = ScrolledText(frames["Editorial Board"], wrap=tk.WORD, width=100, height=30)
+editorial_result_text = ScrolledText(frames["Editorial Board ACM"], wrap=tk.WORD, width=100, height=30)
 editorial_result_text.pack(fill=tk.BOTH, expand=True)
 
 # Add content to the Editorial Board TNNLS frame
