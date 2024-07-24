@@ -204,19 +204,22 @@ def scrapear_arxiv(query):
     return resultados
 
 
-def search_pubmed(query):
-    base_url = "https://pubmed.ncbi.nlm.nih.gov/"
-    search_url = f"{base_url}?term={query}"
-    response = requests.get(search_url)
-    soup = BeautifulSoup(response.text, 'html.parser')
-    articles = soup.find_all('article', class_='full-docsum')
-    results = []
-    for article in articles:
-        title = article.find('a', class_='docsum-title').text.strip()
-        link = urljoin(base_url, article.find('a', class_='docsum-title')['href'])
-        summary = article.find('div', class_='full-view-snippet').text.strip() if article.find('div', class_='full-view-snippet') else "No summary available"
-        results.append({'title': title, 'summary': summary, 'link': link})
-    return results
+def scrapear_pubmed(query):
+    # Busca artículos en pubmed utilizando una consulta y devuelve una lista de resultados.
+    # :param query: str - La consulta de búsqueda para encontrar artículos en arXiv.
+    # :return: list - Una lista de diccionarios, cada uno representando un artículo con su título, resumen y enlace.
+    url_pubmed = "https://pubmed.ncbi.nlm.nih.gov/"
+    url_busqueda = f"{url_pubmed}?term={query}"
+    respuesta = requests.get(url_busqueda)
+    soup = BeautifulSoup(respuesta.text, 'html.parser')
+    articulos = soup.find_all('article', class_='full-docsum')
+    resultados = []
+    for articulo in articulos:
+        titulo = articulo.find('a', class_='docsum-title').text.strip()
+        link = urljoin(url_pubmed, articulo.find('a', class_='docsum-title')['href'])
+        resumen = articulo.find('div', class_='full-view-snippet').text.strip() if articulo.find('div', class_='full-view-snippet') else "No hay resumen disponible"
+        resultados.append({'titulo': titulo, 'resumen': resumen, 'link': link})
+    return resultados
 
 
 def fetch_arxiv_data():
@@ -243,14 +246,14 @@ def fetch_pubmed_data():
         messagebox.showwarning("Input Error", "Please enter a search query")
         return
 
-    results = search_pubmed(query)
+    results = scrapear_pubmed(query)
     pubmed_result_text.delete('1.0', tk.END)
     if not results:
         pubmed_result_text.insert(tk.END, "No results found for the query.")
     else:
         for result in results:
-            pubmed_result_text.insert(tk.END, f"Title: {result['title']}\n")
-            pubmed_result_text.insert(tk.END, f"Summary: {result['summary']}\n")
+            pubmed_result_text.insert(tk.END, f"Titulo: {result['titulo']}\n\n")
+            pubmed_result_text.insert(tk.END, f"Resumen: {result['resumen']}\n\n")
             insertar_link(pubmed_result_text, result['link'], result['link'], results.index(result))
             pubmed_result_text.insert(tk.END, "\n\n")
 
