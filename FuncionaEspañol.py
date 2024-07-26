@@ -270,21 +270,21 @@ def mostrar_arxiv():
 
     # Scrapea en arxiv con la query insertada y verifica que haya resultados
     resultados = scrapear_arxiv(query)
-    widget.delete('1.0', tk.END)
+    widget_arxiv.delete('1.0', tk.END)
     if not resultados:
         widget.insert(tk.END, "No se han encontrado resultados para esta consulta.")
     # Introduce los datos obtenidos en el widget de texto
     else:
         for resultado in resultados:
-            widget.insert(tk.END, f"Titulo: {resultado['titulo']}\n\n")
-            widget.insert(tk.END, f"Autores: {resultado['autores']}\n\n")
-            widget.insert(tk.END, f"Resumen: {resultado['resumen']}\n\n")
-            widget.insert(tk.END, f"Fecha de publicacion: {resultado['fecha_publicacion']}\n\n")
-            widget.insert(tk.END, f"Categorias: {resultado['categorias']}\n\n")
-            widget.insert(tk.END, f"Comentarios: {resultado['comentarios']}\n\n")
-            widget.insert(tk.END, f"Referencia Journal: {resultado['referencia_journal']}\n\n")
-            insertar_link(widget, resultado['link'], resultado['link'], resultados.index(resultado))
-            widget.insert(tk.END, "\n\n")
+            widget_arxiv.insert(tk.END, f"Titulo: {resultado['titulo']}\n\n")
+            widget_arxiv.insert(tk.END, f"Autores: {resultado['autores']}\n\n")
+            widget_arxiv.insert(tk.END, f"Resumen: {resultado['resumen']}\n\n")
+            widget_arxiv.insert(tk.END, f"Fecha de publicacion: {resultado['fecha_publicacion']}\n\n")
+            widget_arxiv.insert(tk.END, f"Categorias: {resultado['categorias']}\n\n")
+            widget_arxiv.insert(tk.END, f"Comentarios: {resultado['comentarios']}\n\n")
+            widget_arxiv.insert(tk.END, f"Referencia Journal: {resultado['referencia_journal']}\n\n")
+            insertar_link(widget_arxiv, resultado['link'], resultado['link'], resultados.index(resultado))
+            widget_arxiv.insert(tk.END, "\n\n")
 
 
 def mostrar_pubmed():
@@ -302,17 +302,17 @@ def mostrar_pubmed():
 
     # Scrapea en arxiv con la query insertada y verifica que haya resultados
     results = scrapear_pubmed(query)
-    pubmed_result_text.delete('1.0', tk.END)
+    widget_pubmed.delete('1.0', tk.END)
     if not results:
-        pubmed_result_text.insert(tk.END, "No se han encontrado resultados para esta consulta.")
+        widget_pubmed.insert(tk.END, "No se han encontrado resultados para esta consulta.")
     # Introduce los datos obtenidos en el widget de texto
     else:
         for result in results:
-            pubmed_result_text.insert(tk.END, f"Titulo: {result['titulo']}\n\n")
-            pubmed_result_text.insert(tk.END, f"Autores: {result['autores']}\n\n")
-            pubmed_result_text.insert(tk.END, f"Resumen: {result['resumen']}\n\n")
-            insertar_link(pubmed_result_text, result['link'], result['link'], results.index(result))
-            pubmed_result_text.insert(tk.END, "\n\n")
+            widget_pubmed.insert(tk.END, f"Titulo: {result['titulo']}\n\n")
+            widget_pubmed.insert(tk.END, f"Autores: {result['autores']}\n\n")
+            widget_pubmed.insert(tk.END, f"Resumen: {result['resumen']}\n\n")
+            insertar_link(widget_pubmed, result['link'], result['link'], results.index(result))
+            widget_pubmed.insert(tk.END, "\n\n")
 
 
 def scrapear_editorial_board_ACM():
@@ -375,14 +375,14 @@ def mostrar_ACM():
                     datos.append([texto_rol, nombre, afiliacion, pais])
                 siguiente_hijo = siguiente_hijo.find_next()
 
-        widget.delete('1.0', tk.END)
-        widget.insert(tk.END, f"Journal Name: {journal_name}\n\n")
+        widget_ACM.delete('1.0', tk.END)
+        widget_ACM.insert(tk.END, f"Journal Name: {journal_name}\n\n")
         for data in datos:
-            widget.insert(tk.END, f"Rol: {data[0]}\n")
-            widget.insert(tk.END, f"Nombre: {data[1]}\n")
-            widget.insert(tk.END, f"Afiliación: {data[2]}\n")
-            widget.insert(tk.END, f"País: {data[3]}\n")
-            widget.insert(tk.END, "\n")
+            widget_ACM.insert(tk.END, f"Rol: {data[0]}\n")
+            widget_ACM.insert(tk.END, f"Nombre: {data[1]}\n")
+            widget_ACM.insert(tk.END, f"Afiliación: {data[2]}\n")
+            widget_ACM.insert(tk.END, f"País: {data[3]}\n")
+            widget_ACM.insert(tk.END, "\n")
 
     except requests.exceptions.RequestException as e:
         messagebox.showerror("Error", f"Fallo al scrapear los datos del editorial board. Error: {e}")
@@ -571,16 +571,16 @@ def mostrar_TNNLS():
                     datos.append([texto_rol, nombre, afiliacion, pais, email, web])
                 siguiente_hijo = siguiente_hijo.find_next()
 
-        widget.delete('1.0', tk.END)
-        widget.insert(tk.END, f"Journal Name: {journal_name}\n\n")
+        widget_TNNLS.delete('1.0', tk.END)
+        widget_TNNLS.insert(tk.END, f"Journal Name: {journal_name}\n\n")
         for dato in datos:
-            widget.insert(tk.END, f"Rol: {dato[0]}\n")
-            widget.insert(tk.END, f"Nombre: {dato[1]}\n")
-            widget.insert(tk.END, f"Afiliación: {dato[2]}\n")
-            widget.insert(tk.END, f"País: {dato[3]}\n")
-            widget.insert(tk.END, f"Email: {dato[4]}\n")
-            widget.insert(tk.END, f"Web: {dato[5]}\n")
-            widget.insert(tk.END, "\n")
+            widget_TNNLS.insert(tk.END, f"Rol: {dato[0]}\n")
+            widget_TNNLS.insert(tk.END, f"Nombre: {dato[1]}\n")
+            widget_TNNLS.insert(tk.END, f"Afiliación: {dato[2]}\n")
+            widget_TNNLS.insert(tk.END, f"País: {dato[3]}\n")
+            widget_TNNLS.insert(tk.END, f"Email: {dato[4]}\n")
+            widget_TNNLS.insert(tk.END, f"Web: {dato[5]}\n")
+            widget_TNNLS.insert(tk.END, "\n")
 
     except requests.exceptions.RequestException as e:
         messagebox.showerror("Error", f"Fallo al scrapear los datos del editorial board. Error: {e}")
@@ -672,8 +672,8 @@ query_arxiv = ttk.Entry(arxiv_frame, width=50)
 query_arxiv.pack(side=tk.LEFT, fill=tk.X, expand=True)
 ttk.Button(arxiv_frame, text="Scrapear", command=mostrar_arxiv).pack(side=tk.LEFT)
 
-widget = ScrolledText(frames["Arxiv"], wrap=tk.WORD, width=100, height=30)
-widget.pack(fill=tk.BOTH, expand=True)
+widget_arxiv = ScrolledText(frames["Arxiv"], wrap=tk.WORD, width=100, height=30)
+widget_arxiv.pack(fill=tk.BOTH, expand=True)
 
 # Add content to the PubMed frame
 pubmed_frame = ttk.Frame(frames["PubMed"], padding="10")
@@ -683,8 +683,8 @@ pubmed_entry = ttk.Entry(pubmed_frame, width=50)
 pubmed_entry.pack(side=tk.LEFT, fill=tk.X, expand=True)
 ttk.Button(pubmed_frame, text="Scrapear", command=mostrar_pubmed).pack(side=tk.LEFT)
 
-pubmed_result_text = ScrolledText(frames["PubMed"], wrap=tk.WORD, width=100, height=30)
-pubmed_result_text.pack(fill=tk.BOTH, expand=True)
+widget_pubmed = ScrolledText(frames["PubMed"], wrap=tk.WORD, width=100, height=30)
+widget_pubmed.pack(fill=tk.BOTH, expand=True)
 
 # Add content to the Editorial Board frame
 editorial_frame = ttk.Frame(frames["Editorial Board ACM"], padding="10")
@@ -695,8 +695,8 @@ editorial_link = tk.Label(editorial_frame, text="https://dl.acm.org/journal/jetc
 editorial_link.pack(side=tk.LEFT)
 editorial_link.bind("<Button-1>", lambda e: abrir_link("https://dl.acm.org/journal/jetc/editorial-board"))
 
-widget = ScrolledText(frames["Editorial Board ACM"], wrap=tk.WORD, width=100, height=30)
-widget.pack(fill=tk.BOTH, expand=True)
+widget_ACM = ScrolledText(frames["Editorial Board ACM"], wrap=tk.WORD, width=100, height=30)
+widget_ACM.pack(fill=tk.BOTH, expand=True)
 
 # Add content to the Editorial Board TNNLS frame
 editorial_tnnls_frame = ttk.Frame(frames["Editorial Board TNNLS"], padding="10")
@@ -708,8 +708,8 @@ editorial_tnnls_link = tk.Label(editorial_tnnls_frame, text="https://cis.ieee.or
 editorial_tnnls_link.pack(side=tk.LEFT, padx=10)
 editorial_tnnls_link.bind("<Button-1>", lambda e: abrir_link("https://cis.ieee.org/publications/t-neural-networks-and-learning-systems/tnnls-editor-and-associate-editors"))
 
-widget = ScrolledText(frames["Editorial Board TNNLS"], wrap=tk.WORD, width=100, height=30)
-widget.pack(fill=tk.BOTH, expand=True)
+widget_TNNLS = ScrolledText(frames["Editorial Board TNNLS"], wrap=tk.WORD, width=100, height=30)
+widget_TNNLS.pack(fill=tk.BOTH, expand=True)
 
 # Initially show the Web Scraper frame
 mostrar_frame(frames["Web Scraper"])
