@@ -60,7 +60,7 @@ def mostrar_datos():
     '''
     
     # Obtener la URL desde el campo de entrada
-    url = url_entry.get()
+    url = entrada_url.get()
     
     # Comprobar si la URL está vacía
     if not url:
@@ -163,7 +163,7 @@ def mostrar_imagen(url):
     '''
     
     # Crea una nueva ventana emergente para mostrar la imagen.
-    ventana = tk.Toplevel(root)
+    ventana = tk.Toplevel(raiz)
     ventana.title("Imagen")
 
     try:
@@ -295,7 +295,7 @@ def mostrar_pubmed():
     '''
     
     # Obtiene la query insertada por el usuario y verifica que no está vacía
-    query = pubmed_entry.get()
+    query = query_pubmed.get()
     if not query:
         messagebox.showwarning("Input Error", "Por favor, introduzca una consulta valida")
         return
@@ -315,14 +315,20 @@ def mostrar_pubmed():
             widget_pubmed.insert(tk.END, "\n\n")
 
 
-def scrapear_editorial_board_ACM():
-    url = 'https://dl.acm.org/journal/jetc/editorial-board'
-
+def scrapear_ACM(url):
+    '''
+    Esta función scrapea la página web de ACM para obtener la lista de miembros del editorial board.
+    :param url: str - La URL de la página web de ACM.
+    :return:
+    '''
+    
+    #Solicitud HTTP y análisis de respuesta con BeautifulSoup
     try:
         respuesta = requests.get(url)
         respuesta.raise_for_status()
         soup = BeautifulSoup(respuesta.content, 'html.parser')
-
+        
+        # Extracción de la información de los miembros del editorial board
         journal_name = soup.find('h1', class_='title').text.strip() if soup.find('h1', class_='title') else 'Nombre de la revista no encontrado'
         datos = []
         roles = soup.find_all('h3', class_='section__title')
@@ -336,11 +342,26 @@ def scrapear_editorial_board_ACM():
                     pais = siguiente_hijo.find('span').text.strip() if siguiente_hijo.find('span') else ''
                     datos.append([texto_rol, nombre, afiliacion, pais])
                 siguiente_hijo = siguiente_hijo.find_next()
+        return journal_name, datos
+    except requests.exceptions.RequestException as e:
+        raise Exception(f"Fallo al scrapear los datos del editorial board. Error: {e}")
 
-        # Save the CSV file
+def guardar_ACM_en_CSV():
+    '''
+    Esta función scrapea la página web de ACM y guarda sus datos en un CSV.
+    :param: None
+    :return: tuple - Contiene el nombre de la revista y una lista de miembros del editorial board.
+    '''
+
+    # URL de ACM y scrapeo de datos
+    url = 'https://dl.acm.org/journal/jetc/editorial-board'
+    try:
+        journal_name, datos = scrapear_ACM(url)
+        
+        # Guarda los datos scrapeados en un CSV, cuyo PATH se pide al usuario
         path = filedialog.asksaveasfilename(defaultextension=".csv", filetypes=[("CSV files", "*.csv")])
         if path:
-            with open(path, 'w', newline='', encoding='utf-8') as csvfile:
+            with open(path, 'w', newline='', encoding='utf-8-sig') as csvfile:  # Añadir -sig para incluir el BOM
                 writer = csv.writer(csvfile)
                 writer.writerow(['Journal Name'])
                 writer.writerow([journal_name])
@@ -349,32 +370,22 @@ def scrapear_editorial_board_ACM():
 
             messagebox.showinfo("Éxito", f"Los datos del editorial board han sido guardados en: '{os.path.basename(path)}'.")
 
-    except requests.exceptions.RequestException as e:
-        messagebox.showerror("Error", f"Fallo al scrapear los datos del editorial board. Error: {e}")
-
+    except Exception as e:
+        messagebox.showerror("Error", str(e))
 
 def mostrar_ACM():
+    '''
+    Esta función muestra los resultados del scrapeo de ACM en un widget de texto.
+    :param: None
+    :return: None
+    '''
+    
+    # Scrapea la página web de ACM y muestra los resultados en el widget de texto
     url = 'https://dl.acm.org/journal/jetc/editorial-board'
-
     try:
-        respuesta = requests.get(url)
-        respuesta.raise_for_status()
-        soup = BeautifulSoup(respuesta.content, 'html.parser')
+        journal_name, datos = scrapear_ACM(url)
 
-        journal_name = soup.find('h1', class_='title').text.strip() if soup.find('h1', class_='title') else 'Nombre de la revista no encontrado'
-        datos = []
-        roles = soup.find_all('h3', class_='section__title')
-        for rol in roles:
-            texto_rol = rol.text.strip()
-            siguiente_hijo = rol.find_next()
-            while siguiente_hijo and siguiente_hijo.name != 'h3':
-                if 'item-meta__info' in siguiente_hijo.get('class', []):
-                    nombre = siguiente_hijo.find('h4').text.strip() if siguiente_hijo.find('h4') else ''
-                    afiliacion = siguiente_hijo.find('p').text.strip() if siguiente_hijo.find('p') else ''
-                    pais = siguiente_hijo.find('span').text.strip() if siguiente_hijo.find('span') else ''
-                    datos.append([texto_rol, nombre, afiliacion, pais])
-                siguiente_hijo = siguiente_hijo.find_next()
-
+        # Insertar los datos en el widget de texto
         widget_ACM.delete('1.0', tk.END)
         widget_ACM.insert(tk.END, f"Journal Name: {journal_name}\n\n")
         for data in datos:
@@ -384,18 +395,24 @@ def mostrar_ACM():
             widget_ACM.insert(tk.END, f"País: {data[3]}\n")
             widget_ACM.insert(tk.END, "\n")
 
-    except requests.exceptions.RequestException as e:
-        messagebox.showerror("Error", f"Fallo al scrapear los datos del editorial board. Error: {e}")
+    except Exception as e:
+        messagebox.showerror("Error", str(e))
 
         
-def scrapear_editorial_board_TNNLS():
-    url = 'https://cis.ieee.org/publications/t-neural-networks-and-learning-systems/tnnls-editor-and-associate-editors'
-
+def scrapear_TNNLS(url):
+    '''
+    Esta función scrapea la página web de TNNLS para obtener la lista de miembros del editorial board.
+    :param url: str - La URL de la página web de TNNLS.
+    :return: tuple - Contiene el nombre de la revista y una lista de miembros del editorial board.
+    '''
+    
+    #Solicitud HTTP y análisis de respuesta con BeautifulSoup
     try:
         respuesta = requests.get(url)
         respuesta.raise_for_status()
         soup = BeautifulSoup(respuesta.content, 'html.parser')
 
+    # Extracción de título y primer miembro  
         journal_name = soup.find('h1').text.strip() if soup.find('h1') else 'Journal Name no encontrado'
         datos = []
 
@@ -414,7 +431,8 @@ def scrapear_editorial_board_TNNLS():
                     email = br_tags[3].next_sibling.strip() if br_tags[3].next_sibling else ''
                     afiliacion = f"{afiliacion1}, {afiliacion2}"
                     datos.append([texto_rol, nombre, afiliacion, pais, email, ''])
-
+        
+        # Extracción de siguientes miembros            
         roles = soup.find_all('h2')
         for rol in roles:
             if rol == primer_miembro:
@@ -449,6 +467,7 @@ def scrapear_editorial_board_TNNLS():
                         afiliacion = f"{afiliacion1}, {afiliacion2}"
                         datos.append([texto_rol, nombre, afiliacion, pais, '', ''])
 
+        # Extracción de los últimos miembros del editorial board               
         roles = soup.find_all('h3', class_='roletitle')
         for rol in roles:
             texto_rol = rol.text.strip()
@@ -471,9 +490,30 @@ def scrapear_editorial_board_TNNLS():
                     datos.append([texto_rol, nombre, afiliacion, pais, email, web])
                 siguiente_hijo = siguiente_hijo.find_next()
 
+        return journal_name, datos
+
+    except requests.exceptions.RequestException as e:
+        raise Exception(f"Fallo al scrapear los datos del editorial board. Error: {e}")
+    except Exception as e:
+        raise Exception(f"Error inesperado: {e}")
+
+
+def guardar_TNNLS_en_CSV():
+    '''
+    Esta función scrapea la página web de TNNLS y guarda sus datos en un CSV.
+    :param: None
+    :return: None
+    '''
+    
+    # URL de la página web de TNNLS y scrapeo de datos
+    url = 'https://cis.ieee.org/publications/t-neural-networks-and-learning-systems/tnnls-editor-and-associate-editors'
+    try:
+        journal_name, datos = scrapear_TNNLS(url)
+        
+        # Guarda los datos scrapeados en un CSV, cuyo PATH se pide al usuario
         path = filedialog.asksaveasfilename(defaultextension=".csv", filetypes=[("CSV files", "*.csv")])
         if path:
-            with open(path, 'w', newline='', encoding='utf-8') as csvfile:
+            with open(path, 'w', newline='', encoding='utf-8-sig') as csvfile:
                 writer = csv.writer(csvfile)
                 writer.writerow(['Journal Name'])
                 writer.writerow([journal_name])
@@ -482,95 +522,24 @@ def scrapear_editorial_board_TNNLS():
 
             messagebox.showinfo("Éxito", f"Los datos del editorial board han sido guardados en: '{os.path.basename(path)}'.")
 
-    except requests.exceptions.RequestException as e:
-        messagebox.showerror("Error", f"Fallo al scrapear los datos del editorial board. Error: {e}")
     except Exception as e:
-        messagebox.showerror("Error", f"Error inesperado: {e}")
+        messagebox.showerror("Error", str(e))
 
-        
+
 def mostrar_TNNLS():
+    '''
+    Función que muestra los datos scrapeados de TNNLS en el widget de texto.
+    :param: None
+    :return: None
+    '''
+    
+    # URL de la página web de TNNLS y scrapeo de datos
     url = 'https://cis.ieee.org/publications/t-neural-networks-and-learning-systems/tnnls-editor-and-associate-editors'
-
+    
     try:
-        respuesta = requests.get(url)
-        respuesta.raise_for_status()
-        soup = BeautifulSoup(respuesta.content, 'html.parser')
+        journal_name, datos = scrapear_TNNLS(url)
 
-        journal_name = soup.find('h1').text.strip() if soup.find('h1') else 'Journal Name no encontrado'
-        datos = []
-
-        primer_miembro = soup.find('h2', style=True)
-        if primer_miembro:
-            texto_rol = primer_miembro.text.strip()
-            tag = primer_miembro.find_next('p', style=True)
-            if tag:
-                strong_tag = tag.find('strong')
-                nombre = strong_tag.text.strip() if strong_tag else ''
-                br_tags = tag.find_all('br')
-                if len(br_tags) >= 4:
-                    afiliacion1 = br_tags[0].next_sibling.strip() if br_tags[0].next_sibling else ''
-                    afiliacion2 = br_tags[1].next_sibling.strip() if br_tags[1].next_sibling else ''
-                    pais = br_tags[2].next_sibling.strip() if br_tags[2].next_sibling else ''
-                    email = br_tags[3].next_sibling.strip() if br_tags[3].next_sibling else ''
-                    afiliacion = f"{afiliacion1}, {afiliacion2}"
-                    datos.append([texto_rol, nombre, afiliacion, pais, email, ''])
-
-        roles = soup.find_all('h2')
-        for rol in roles:
-            if rol == primer_miembro:
-                continue
-            texto_rol = rol.find('strong').text.strip() if rol.find('strong') else ''
-            siguiente_hijo = rol.find_next()
-            elementos = []
-            while siguiente_hijo and siguiente_hijo.name != 'h2':
-                if siguiente_hijo.name == 'p':
-                    elementos.append(siguiente_hijo)
-                elif siguiente_hijo.name == 'table':
-                    tbody = siguiente_hijo.find('tbody')
-                    if tbody:
-                        elementos_tr = tbody.find_all('tr')[1:]
-                        for tr in elementos_tr:
-                            elementos_td = tr.find_all('td')
-                            if len(elementos_td) >= 3:
-                                nombre = elementos_td[0].text.strip()
-                                afiliacion = elementos_td[1].text.strip()
-                                pais = elementos_td[2].text.strip()
-                                datos.append([texto_rol, nombre, afiliacion, pais, '', ''])
-                siguiente_hijo = siguiente_hijo.find_next()
-
-            if elementos:
-                for elemento in elementos[:-1]:
-                    spans = elemento.find_all('span')
-                    if len(spans) >= 4:
-                        nombre = spans[0].text.strip()
-                        afiliacion1 = spans[1].text.strip()
-                        afiliacion2 = spans[2].text.strip()
-                        pais = spans[3].text.strip()
-                        afiliacion = f"{afiliacion1}, {afiliacion2}"
-                        datos.append([texto_rol, nombre, afiliacion, pais, '', ''])
-
-        roles = soup.find_all('h3', class_='roletitle')
-        for rol in roles:
-            texto_rol = rol.text.strip()
-            siguiente_hijo = rol.find_next()
-            while siguiente_hijo and siguiente_hijo.name != 'h3':
-                if siguiente_hijo.name == 'div' and 'indvlistname' in siguiente_hijo.get('class', []):
-                    nombre = siguiente_hijo.text.strip()
-                    div_afiliacion = siguiente_hijo.find_next('div', class_='indvlistaffil')
-                    if div_afiliacion:
-                        partes_afiliacion = div_afiliacion.text.strip().split(',')
-                        afiliacion = ', '.join(part.strip() for part in partes_afiliacion)
-                    else:
-                        afiliacion = ''
-                    div_pais = siguiente_hijo.find_next('div', class_='indvfulllistaddr')
-                    pais = div_pais.text.strip() if div_pais else ''
-                    div_email = siguiente_hijo.find_next('div', class_='indvlistemail')
-                    email = div_email.text.strip() if div_email else ''
-                    div_web = siguiente_hijo.find_next('div', class_='indvlistwebsite')
-                    web = div_web.text.strip() if div_web else ''
-                    datos.append([texto_rol, nombre, afiliacion, pais, email, web])
-                siguiente_hijo = siguiente_hijo.find_next()
-
+    # Mostrar los datos scrapeados en el widget de texto  
         widget_TNNLS.delete('1.0', tk.END)
         widget_TNNLS.insert(tk.END, f"Journal Name: {journal_name}\n\n")
         for dato in datos:
@@ -582,12 +551,10 @@ def mostrar_TNNLS():
             widget_TNNLS.insert(tk.END, f"Web: {dato[5]}\n")
             widget_TNNLS.insert(tk.END, "\n")
 
-    except requests.exceptions.RequestException as e:
-        messagebox.showerror("Error", f"Fallo al scrapear los datos del editorial board. Error: {e}")
     except Exception as e:
-        messagebox.showerror("Error", f"Error inseperado: {e}")
-
-
+        messagebox.showerror("Error", str(e))
+    
+        
 #Interfaz de la aplicación
 def mostrar_frame(frame):
     '''
@@ -603,71 +570,77 @@ def iniciar_aplicacion():
     Inicia la aplicación despues de la pantalla de inicio, cerrando esta y mostrando la principal que estaba oculta en pantalla completa
     :return:None
     '''
-    splash.destroy()
-    root.deiconify()
-    root.state('zoomed')
-        
-root = tk.Tk()
-root.title("Web Scraper")
-root.geometry("1000x600")
-root.withdraw()
+    secundaria.destroy()
+    raiz.deiconify()
+    raiz.state('zoomed')
 
-splash = tk.Toplevel()
-splash.title("Welcome")
-splash.geometry("500x300")
+# Crear ventanas principal y secundaria        
+raiz = tk.Tk()
+raiz.title("Web Scraper")
+raiz.geometry("1000x600")
+raiz.withdraw()
 
-# Make the splash screen fullscreen
-splash.attributes("-fullscreen", True)
+secundaria = tk.Toplevel()
+secundaria.title("Welcome")
+secundaria.geometry("500x300")
 
-splash_label = tk.Label(splash, text="Welcome to the Web Scraper!", font=("Times New Roman", 18))
-splash_label.pack(expand=True)
+secundaria.attributes("-fullscreen", True)
 
-start_button = tk.Button(splash, text="Start", command=iniciar_aplicacion, font=("Times New Roman", 14), bg="#3498DB", fg="white")
-start_button.pack()
+# Crear la pantalla de inicio
+titulo_secundaria = tk.Label(secundaria, text="Welcome to the Web Scraper!", font=("Times New Roman", 18))
+titulo_secundaria.pack(expand=True)
 
-# Create a frame for the sidebar
-sidebar = tk.Frame(root, bg="#3498DB", width=200, height=600, relief="sunken", borderwidth=2)
-sidebar.pack(expand=False, fill="y", side="left", anchor="nw")
+boton_inicio = tk.Button(secundaria, text="Inicio", command=iniciar_aplicacion, font=("Times New Roman", 14), bg="#3498DB", fg="white")
+boton_inicio.pack()
 
-# Create a main content frame
-main_content = tk.Frame(root, bg="white", width=800, height=600)
-main_content.pack(expand=True, fill="both", side="right")
+# Crear un frame para la barra lateral
+barra_lateral = tk.Frame(raiz, bg="#3498DB", width=200, height=600, relief="sunken", borderwidth=2)
+barra_lateral.pack(expand=False, fill="y", side="left", anchor="nw")
 
-# Create frames for each section
+# Crear un frame principal
+principal = tk.Frame(raiz, bg="white", width=800, height=600)
+principal.pack(expand=True, fill="both", side="right")
+
+# Crear frames para cada sección
 frames = {}
-for option in ["Web Scraper", "Arxiv", "PubMed", "Editorial Board ACM", "Editorial Board TNNLS"]:
-    frame = tk.Frame(main_content, bg="white")
+for opcion in ["Web Scraper", "Arxiv", "PubMed", "Editorial Board ACM", "Editorial Board TNNLS"]:
+    frame = tk.Frame(principal, bg="white")
     frame.place(relwidth=1, relheight=1)
-    frames[option] = frame
+    frames[opcion] = frame
 
-# Function to add buttons to the sidebar
-def add_sidebar_button(text, frame_name):
-    button = tk.Button(sidebar, text=text, bg="#2980B9", fg="white", font=("Helvetica", 14), relief="flat",
-                       command=lambda: mostrar_frame(frames[frame_name]))
-    button.pack(fill="x")
+def añadir_a_barra_lateral(texto, nombre_frame):
+    '''
+    Esta función añade un botón a la barra lateral que al ser pulsado muestra el frame correspondiente
+    :param texto: str - Texto del botón
+    :param nombre_frame: str - Nombre del frame a mostrar
+    :return: None
+    '''
+    boton = tk.Button(barra_lateral, text=texto, bg="#2980B9", fg="white", font=("Helvetica", 14), relief="flat",
+                       command=lambda: mostrar_frame(frames[nombre_frame]))
+    boton.pack(fill="x")
 
-# Add buttons to the sidebar
-add_sidebar_button("Web Scraper", "Web Scraper")
-add_sidebar_button("Arxiv", "Arxiv")
-add_sidebar_button("PubMed", "PubMed")
-add_sidebar_button("Editorial Board ACM", "Editorial Board ACM")
-add_sidebar_button("Editorial Board TNNLS", "Editorial Board TNNLS")
+# Añadir botones a la barra lateral
+añadir_a_barra_lateral("Web Scraper", "Web Scraper")
+añadir_a_barra_lateral("Arxiv", "Arxiv")
+añadir_a_barra_lateral("PubMed", "PubMed")
+añadir_a_barra_lateral("Editorial Board ACM", "Editorial Board ACM")
+añadir_a_barra_lateral("Editorial Board TNNLS", "Editorial Board TNNLS")
 
-# Add content to the Web Scraper frame
-url_frame = ttk.Frame(frames["Web Scraper"], padding="10")
-url_frame.pack(side=tk.TOP, fill=tk.X)
-ttk.Label(url_frame, text="Enter URL:").pack(side=tk.LEFT)
-url_entry = ttk.Entry(url_frame, width=50)
-url_entry.pack(side=tk.LEFT, fill=tk.X, expand=True)
-tk.Button(url_frame, text="Scrapear", command=mostrar_datos, bg='#3498DB', fg='white').pack(side=tk.LEFT)
+# Añadir contenido al frame de Web Scraper
+frame_url = ttk.Frame(frames["Web Scraper"], padding="10")
+frame_url.pack(side=tk.TOP, fill=tk.X)
+ttk.Label(frame_url, text="Inserte URL:").pack(side=tk.LEFT)
+entrada_url = ttk.Entry(frame_url, width=50)
+entrada_url.pack(side=tk.LEFT, fill=tk.X, expand=True)
+tk.Button(frame_url, text="Scrapear", command=mostrar_datos, bg='#3498DB', fg='white').pack(side=tk.LEFT)
 
 widget = ScrolledText(frames["Web Scraper"], wrap=tk.WORD, width=100, height=30)
 widget.pack(fill=tk.BOTH, expand=True)
 
-# Add content to the Arxiv frame
+# Añadir contenido al frame de Arxiv
 arxiv_frame = ttk.Frame(frames["Arxiv"], padding="10")
 arxiv_frame.pack(side=tk.TOP, fill=tk.X)
-ttk.Label(arxiv_frame, text="Enter Arxiv Query:").pack(side=tk.LEFT)
+ttk.Label(arxiv_frame, text="Inserte Consulta Arxiv:").pack(side=tk.LEFT)
 query_arxiv = ttk.Entry(arxiv_frame, width=50)
 query_arxiv.pack(side=tk.LEFT, fill=tk.X, expand=True)
 ttk.Button(arxiv_frame, text="Scrapear", command=mostrar_arxiv).pack(side=tk.LEFT)
@@ -675,43 +648,43 @@ ttk.Button(arxiv_frame, text="Scrapear", command=mostrar_arxiv).pack(side=tk.LEF
 widget_arxiv = ScrolledText(frames["Arxiv"], wrap=tk.WORD, width=100, height=30)
 widget_arxiv.pack(fill=tk.BOTH, expand=True)
 
-# Add content to the PubMed frame
+# Añadir contenido al frame de Pubmed
 pubmed_frame = ttk.Frame(frames["PubMed"], padding="10")
 pubmed_frame.pack(side=tk.TOP, fill=tk.X)
-ttk.Label(pubmed_frame, text="Enter PubMed Query:").pack(side=tk.LEFT)
-pubmed_entry = ttk.Entry(pubmed_frame, width=50)
-pubmed_entry.pack(side=tk.LEFT, fill=tk.X, expand=True)
+ttk.Label(pubmed_frame, text="Inserte Consulta Pubmed:").pack(side=tk.LEFT)
+query_pubmed = ttk.Entry(pubmed_frame, width=50)
+query_pubmed.pack(side=tk.LEFT, fill=tk.X, expand=True)
 ttk.Button(pubmed_frame, text="Scrapear", command=mostrar_pubmed).pack(side=tk.LEFT)
 
 widget_pubmed = ScrolledText(frames["PubMed"], wrap=tk.WORD, width=100, height=30)
 widget_pubmed.pack(fill=tk.BOTH, expand=True)
 
-# Add content to the Editorial Board frame
-editorial_frame = ttk.Frame(frames["Editorial Board ACM"], padding="10")
-editorial_frame.pack(side=tk.TOP, fill=tk.X)
-ttk.Button(editorial_frame, text="Download Editorial Board CSV", command=scrapear_editorial_board_ACM).pack(side=tk.LEFT)
-ttk.Button(editorial_frame, text="Show Editorial Board Data", command=mostrar_ACM).pack(side=tk.LEFT)
-editorial_link = tk.Label(editorial_frame, text="https://dl.acm.org/journal/jetc/editorial-board", fg="blue", cursor="hand2")
-editorial_link.pack(side=tk.LEFT)
-editorial_link.bind("<Button-1>", lambda e: abrir_link("https://dl.acm.org/journal/jetc/editorial-board"))
+# Añadir contenido al frame de ACM
+frame_ACM = ttk.Frame(frames["Editorial Board ACM"], padding="10")
+frame_ACM.pack(side=tk.TOP, fill=tk.X)
+ttk.Button(frame_ACM, text="Descargar Editorial Board CSV", command=guardar_ACM_en_CSV).pack(side=tk.LEFT)
+ttk.Button(frame_ACM, text="Ver Editorial Board", command=mostrar_ACM).pack(side=tk.LEFT)
+link_ACM = tk.Label(frame_ACM, text="https://dl.acm.org/journal/jetc/editorial-board", fg="blue", cursor="hand2")
+link_ACM.pack(side=tk.LEFT)
+link_ACM.bind("<Button-1>", lambda e: abrir_link("https://dl.acm.org/journal/jetc/editorial-board"))
 
 widget_ACM = ScrolledText(frames["Editorial Board ACM"], wrap=tk.WORD, width=100, height=30)
 widget_ACM.pack(fill=tk.BOTH, expand=True)
 
-# Add content to the Editorial Board TNNLS frame
-editorial_tnnls_frame = ttk.Frame(frames["Editorial Board TNNLS"], padding="10")
-editorial_tnnls_frame.pack(side=tk.TOP, fill=tk.X)
+# Añadir contenido al frame de TNNLS
+frame_TNNLS = ttk.Frame(frames["Editorial Board TNNLS"], padding="10")
+frame_TNNLS.pack(side=tk.TOP, fill=tk.X)
 
-ttk.Button(editorial_tnnls_frame, text="Download Editorial Board CSV", command=scrapear_editorial_board_TNNLS).pack(side=tk.LEFT, padx=10)
-ttk.Button(editorial_tnnls_frame, text="Show Editorial Board Data", command=mostrar_TNNLS).pack(side=tk.LEFT, padx=10)
-editorial_tnnls_link = tk.Label(editorial_tnnls_frame, text="https://cis.ieee.org/publications/t-neural-networks-and-learning-systems/tnnls-editor-and-associate-editors", fg="blue", cursor="hand2")
-editorial_tnnls_link.pack(side=tk.LEFT, padx=10)
-editorial_tnnls_link.bind("<Button-1>", lambda e: abrir_link("https://cis.ieee.org/publications/t-neural-networks-and-learning-systems/tnnls-editor-and-associate-editors"))
+ttk.Button(frame_TNNLS, text="Descargar Editorial Board CSV", command=guardar_TNNLS_en_CSV).pack(side=tk.LEFT, padx=10)
+ttk.Button(frame_TNNLS, text="Ver Editorial Board", command=mostrar_TNNLS).pack(side=tk.LEFT, padx=10)
+link_TNNLS = tk.Label(frame_TNNLS, text="https://cis.ieee.org/publications/t-neural-networks-and-learning-systems/tnnls-editor-and-associate-editors", fg="blue", cursor="hand2")
+link_TNNLS.pack(side=tk.LEFT, padx=10)
+link_TNNLS.bind("<Button-1>", lambda e: abrir_link("https://cis.ieee.org/publications/t-neural-networks-and-learning-systems/tnnls-editor-and-associate-editors"))
 
 widget_TNNLS = ScrolledText(frames["Editorial Board TNNLS"], wrap=tk.WORD, width=100, height=30)
 widget_TNNLS.pack(fill=tk.BOTH, expand=True)
 
-# Initially show the Web Scraper frame
+# Mostrar el frame de Web Scraper al iniciar
 mostrar_frame(frames["Web Scraper"])
 
-root.mainloop()
+raiz.mainloop()
