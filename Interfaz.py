@@ -280,6 +280,16 @@ def iniciar_aplicacion():
     raiz.deiconify()
     raiz.state('zoomed')
 
+import tkinter as tk
+from tkinter import ttk
+from tkinter.scrolledtext import ScrolledText
+from PIL import Image, ImageTk
+
+# Función de ejemplo para iniciar la aplicación
+def iniciar_aplicacion():
+    raiz.deiconify()
+    secundaria.withdraw()
+
 # Crear ventanas principal y secundaria        
 raiz = tk.Tk()
 raiz.title("Web Scraper")
@@ -289,15 +299,31 @@ raiz.withdraw()
 secundaria = tk.Toplevel()
 secundaria.title("Welcome")
 secundaria.geometry("500x300")
-
 secundaria.attributes("-fullscreen", True)
 
-# Crear la pantalla de inicio
-titulo_secundaria = tk.Label(secundaria, text="Welcome to the Web Scraper!", font=("Times New Roman", 18))
-titulo_secundaria.pack(expand=True)
+# Establecer el color de fondo para la pantalla de inicio
+color_fondo = "#87CEFA"
+secundaria.configure(bg=color_fondo)
 
-boton_inicio = tk.Button(secundaria, text="Inicio", command=iniciar_aplicacion, font=("Times New Roman", 14), bg="#3498DB", fg="white")
-boton_inicio.pack()
+# Crear un frame para centrar el contenido
+frame_central = tk.Frame(secundaria, bg=color_fondo)
+frame_central.place(relx=0.5, rely=0.5, anchor="center")
+
+# Cargar la imagen para la pantalla de inicio
+logo_inicio = Image.open("imagen.png")
+logo_inicio = logo_inicio.resize((150, 150))
+foto_inicio = ImageTk.PhotoImage(logo_inicio)
+
+# Crear la pantalla de inicio
+label_imagen_inicio = tk.Label(frame_central, image=foto_inicio, bg=color_fondo)
+label_imagen_inicio.image = foto_inicio
+label_imagen_inicio.pack(pady=(0, 10))
+
+titulo_secundaria = tk.Label(frame_central, text="ScrapeMaster", font=("Times New Roman", 20), bg=color_fondo)
+titulo_secundaria.pack(pady=(10, 20))
+
+boton_inicio = tk.Button(frame_central, text="Inicio", command=iniciar_aplicacion, bg='#121DB8', fg='white', font=("Times New Roman", 20))
+boton_inicio.pack(pady=20)
 
 # Crear un frame para la barra lateral
 barra_lateral = tk.Frame(raiz, bg="#3498DB", width=200, height=600, relief="sunken", borderwidth=2)
@@ -349,7 +375,7 @@ arxiv_frame.pack(side=tk.TOP, fill=tk.X)
 ttk.Label(arxiv_frame, text="Inserte Consulta Arxiv:").pack(side=tk.LEFT)
 query_arxiv = ttk.Entry(arxiv_frame, width=50)
 query_arxiv.pack(side=tk.LEFT, fill=tk.X, expand=True)
-tk.Button(arxiv_frame, text="Scrapear", command=mostrar_arxiv, bg='#3498DB', fg='black').pack(side=tk.LEFT)
+tk.Button(arxiv_frame, text="Scrapear", command=mostrar_arxiv, bg='#121DB8', fg='white', font=("Times New Roman", 10)).pack(side=tk.LEFT)
 
 widget_arxiv = ScrolledText(frames["Arxiv"], wrap=tk.WORD, width=100, height=30)
 widget_arxiv.pack(fill=tk.BOTH, expand=True)
@@ -360,7 +386,7 @@ pubmed_frame.pack(side=tk.TOP, fill=tk.X)
 ttk.Label(pubmed_frame, text="Inserte Consulta Pubmed:").pack(side=tk.LEFT)
 query_pubmed = ttk.Entry(pubmed_frame, width=50)
 query_pubmed.pack(side=tk.LEFT, fill=tk.X, expand=True)
-tk.Button(pubmed_frame, text="Scrapear", command=mostrar_pubmed, bg='#3498DB', fg='black').pack(side=tk.LEFT)
+tk.Button(pubmed_frame, text="Scrapear", command=mostrar_pubmed, bg='#121DB8', fg='white', font=("Times New Roman", 10)).pack(side=tk.LEFT)
 
 widget_pubmed = ScrolledText(frames["PubMed"], wrap=tk.WORD, width=100, height=30)
 widget_pubmed.pack(fill=tk.BOTH, expand=True)
@@ -368,8 +394,8 @@ widget_pubmed.pack(fill=tk.BOTH, expand=True)
 # Añadir contenido al frame de ACM
 frame_ACM = ttk.Frame(frames["Editorial Board ACM"], padding="10")
 frame_ACM.pack(side=tk.TOP, fill=tk.X)
-tk.Button(frame_ACM, text="Descargar Editorial Board CSV", command=guardar_ACM_en_CSV, bg='#3498DB', fg='black').pack(side=tk.LEFT)
-tk.Button(frame_ACM, text="Ver Editorial Board", command=mostrar_ACM, bg='#3498DB', fg='black').pack(side=tk.LEFT)
+tk.Button(frame_ACM, text="Descargar Editorial Board CSV", command=guardar_ACM_en_CSV, bg='#121DB8', fg='white', font=("Times New Roman", 14)).pack(side=tk.LEFT)
+tk.Button(frame_ACM, text="Ver Editorial Board", command=mostrar_ACM, bg='#121DB8', fg='white', font=("Times New Roman", 14)).pack(side=tk.LEFT)
 link_ACM = tk.Label(frame_ACM, text="https://dl.acm.org/journal/jetc/editorial-board", fg="blue", cursor="hand2")
 link_ACM.pack(side=tk.LEFT)
 link_ACM.bind("<Button-1>", lambda e: abrir_link("https://dl.acm.org/journal/jetc/editorial-board"))
@@ -392,5 +418,14 @@ widget_TNNLS.pack(fill=tk.BOTH, expand=True)
 
 # Mostrar el frame de Web Scraper al iniciar
 mostrar_frame(frames["Web Scraper"])
+
+# Cargar y añadir la imagen a la barra lateral
+logo = Image.open("imagen.png")  # Asegúrate de que la imagen esté en el mismo directorio que tu script
+logo = logo.resize((100, 100))
+photo = ImageTk.PhotoImage(logo)
+
+label_logo = tk.Label(barra_lateral, image=photo, bg="#3498DB")
+label_logo.image = photo  # Guardar referencia para evitar que Python la recoja como basura
+label_logo.pack(side="bottom", pady=10)
 
 raiz.mainloop()
