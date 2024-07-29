@@ -301,7 +301,7 @@ frame_central.place(relx=0.5, rely=0.5, anchor="center")
 
 # Cargar la imagen para la pantalla de inicio
 logo_inicio = Image.open("logo.png")
-logo_inicio = logo_inicio.resize((150, 150))
+logo_inicio = logo_inicio.resize((300, 300))
 foto_inicio = ImageTk.PhotoImage(logo_inicio)
 
 # Crear la pantalla de inicio
@@ -309,14 +309,14 @@ label_imagen_inicio = tk.Label(frame_central, image=foto_inicio, bg=color_fondo)
 label_imagen_inicio.image = foto_inicio
 label_imagen_inicio.pack(pady=(0, 10))
 
-titulo_secundaria = tk.Label(frame_central, text="ScrapeMaster", font=("Times New Roman", 20), bg=color_fondo)
-titulo_secundaria.pack(pady=(10, 20))
+titulo_secundaria = tk.Label(frame_central, text="ScienceScraper", font=("Times New Roman", 30, "bold", "italic"),  bg=color_fondo)
+titulo_secundaria.pack(pady=(10, 50))
 
 boton_inicio = tk.Button(frame_central, text="Inicio", command=iniciar_aplicacion, bg='#121DB8', fg='white', font=("Times New Roman", 20))
 boton_inicio.pack(pady=20)
 
 # Crear un frame para la barra lateral
-barra_lateral = tk.Frame(raiz, bg="#3498DB", width=200, height=600, relief="sunken", borderwidth=2)
+barra_lateral = tk.Frame(raiz, bg="#87CEFA", width=200, height=600, relief="sunken", borderwidth=2)
 barra_lateral.pack(expand=False, fill="y", side="left", anchor="nw")
 
 # Crear un frame principal
@@ -384,8 +384,8 @@ widget_pubmed.pack(fill=tk.BOTH, expand=True)
 # Añadir contenido al frame de ACM
 frame_ACM = ttk.Frame(frames["Editorial Board ACM"], padding="10")
 frame_ACM.pack(side=tk.TOP, fill=tk.X)
-tk.Button(frame_ACM, text="Descargar Editorial Board CSV", command=guardar_ACM_en_CSV, bg='#121DB8', fg='white', font=("Times New Roman", 14)).pack(side=tk.LEFT)
-tk.Button(frame_ACM, text="Ver Editorial Board", command=mostrar_ACM, bg='#121DB8', fg='white', font=("Times New Roman", 14)).pack(side=tk.LEFT)
+tk.Button(frame_ACM, text="Descargar Editorial Board CSV", command=guardar_ACM_en_CSV, bg='#121DB8', fg='white', font=("Times New Roman", 14)).pack(side=tk.LEFT, padx=10)
+tk.Button(frame_ACM, text="Ver Editorial Board", command=mostrar_ACM, bg='#121DB8', fg='white', font=("Times New Roman", 14)).pack(side=tk.LEFT, padx=10)
 link_ACM = tk.Label(frame_ACM, text="https://dl.acm.org/journal/jetc/editorial-board", fg="blue", cursor="hand2")
 link_ACM.pack(side=tk.LEFT)
 link_ACM.bind("<Button-1>", lambda e: abrir_link("https://dl.acm.org/journal/jetc/editorial-board"))
@@ -409,13 +409,13 @@ widget_TNNLS.pack(fill=tk.BOTH, expand=True)
 # Mostrar el frame de Web Scraper al iniciar
 mostrar_frame(frames["Web Scraper"])
 
-# Cargar y añadir la imagen a la barra lateral
-logo = Image.open("logo.png")  # Asegúrate de que la imagen esté en el mismo directorio que tu script
+# Cargar y añadir el logo a la barra lateral
+logo = Image.open("logo.png")
 logo = logo.resize((100, 100))
 photo = ImageTk.PhotoImage(logo)
 
-label_logo = tk.Label(barra_lateral, image=photo, bg="#3498DB")
-label_logo.image = photo  # Guardar referencia para evitar que Python la recoja como basura
-label_logo.pack(side="bottom", pady=10)
+label_logo = tk.Label(barra_lateral, image=photo, bg="#87CEFA")
+label_logo.image = photo
+label_logo.pack(side="bottom", pady=20)
 
 raiz.mainloop()
