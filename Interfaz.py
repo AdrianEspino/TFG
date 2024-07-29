@@ -280,16 +280,6 @@ def iniciar_aplicacion():
     raiz.deiconify()
     raiz.state('zoomed')
 
-import tkinter as tk
-from tkinter import ttk
-from tkinter.scrolledtext import ScrolledText
-from PIL import Image, ImageTk
-
-# Función de ejemplo para iniciar la aplicación
-def iniciar_aplicacion():
-    raiz.deiconify()
-    secundaria.withdraw()
-
 # Crear ventanas principal y secundaria        
 raiz = tk.Tk()
 raiz.title("Web Scraper")
@@ -310,7 +300,7 @@ frame_central = tk.Frame(secundaria, bg=color_fondo)
 frame_central.place(relx=0.5, rely=0.5, anchor="center")
 
 # Cargar la imagen para la pantalla de inicio
-logo_inicio = Image.open("imagen.png")
+logo_inicio = Image.open("logo.png")
 logo_inicio = logo_inicio.resize((150, 150))
 foto_inicio = ImageTk.PhotoImage(logo_inicio)
 
@@ -420,7 +410,7 @@ widget_TNNLS.pack(fill=tk.BOTH, expand=True)
 mostrar_frame(frames["Web Scraper"])
 
 # Cargar y añadir la imagen a la barra lateral
-logo = Image.open("imagen.png")  # Asegúrate de que la imagen esté en el mismo directorio que tu script
+logo = Image.open("logo.png")  # Asegúrate de que la imagen esté en el mismo directorio que tu script
 logo = logo.resize((100, 100))
 photo = ImageTk.PhotoImage(logo)
 
