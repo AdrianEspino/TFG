@@ -1,4 +1,3 @@
-from turtle import width
 import requests
 import tkinter as tk
 from tkinter import ttk, messagebox
@@ -6,7 +5,23 @@ from tkinter.scrolledtext import ScrolledText
 from io import BytesIO
 from PIL import Image, ImageTk
 import webbrowser
+import os
+import sys
 from Funciones import *
+
+def resource_path(path_relativo):
+    '''
+    Obtiene la ruta del recurso para ser utilizado en el entorno de PyInstaller o en el entorno de desarrollo.
+    :param relative_path: str - Ruta relativa del recurso.
+    :return: str - Ruta absoluta del recurso.
+    '''
+    try:
+        # PyInstaller guarda recursos en un directorio temporal llamado _MEIPASS
+        path_base = sys._MEIPASS
+    except AttributeError:
+        # En el entorno de desarrollo, usa la ruta del script actual
+        path_base = os.path.dirname(__file__)
+    return os.path.join(path_base, path_relativo)
 
 def mostrar_datos():
     '''  
@@ -291,6 +306,13 @@ secundaria.title("Welcome")
 secundaria.geometry("500x300")
 secundaria.attributes("-fullscreen", True)
 
+# Cargar el logo
+try:
+    path_logo = resource_path("logo.png")
+    logo_img = Image.open(path_logo)
+except Exception as e:
+    print(f"No se pudo cargar el logo: {e}")
+
 # Establecer el color de fondo para la pantalla de inicio
 color_fondo = "#87CEFA"
 secundaria.configure(bg=color_fondo)
@@ -300,7 +322,7 @@ frame_central = tk.Frame(secundaria, bg=color_fondo)
 frame_central.place(relx=0.5, rely=0.5, anchor="center")
 
 # Cargar la imagen para la pantalla de inicio
-logo_inicio = Image.open("logo.png")
+logo_inicio = Image.open(path_logo)
 logo_inicio = logo_inicio.resize((300, 300))
 foto_inicio = ImageTk.PhotoImage(logo_inicio)
 
@@ -410,7 +432,7 @@ widget_TNNLS.pack(fill=tk.BOTH, expand=True)
 mostrar_frame(frames["Web Scraper"])
 
 # Cargar y añadir el logo a la barra lateral
-logo = Image.open("logo.png")
+logo = Image.open(path_logo)
 logo = logo.resize((100, 100))
 photo = ImageTk.PhotoImage(logo)
 
