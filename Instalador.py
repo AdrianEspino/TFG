@@ -1,10 +1,10 @@
 import subprocess
 import sys
 
-def install(package):
-    subprocess.check_call([sys.executable, "-m", "pip", "install", package])
+def instalar(paquete):
+    subprocess.check_call([sys.executable, "-m", "pip", "install", paquete])
 
-packages = [
+paquetes = [
     "requests",
     "beautifulsoup4",
     "tk",
@@ -13,10 +13,10 @@ packages = [
     "csv",
 ]
 
-for package in packages:
+for paquete in paquetes:
     try:
-        install(package)
+        instalar(paquete)
     except Exception as e:
-        print(f"Error al instalar {package}: {e}")
+        print(f"Error al instalar {paquete}: {e}")
 
 print("Instalacion de paquetes completa.")
