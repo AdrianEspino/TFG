@@ -7,7 +7,11 @@ from PIL import Image, ImageTk
 import webbrowser
 import os
 import sys
-from Funciones import *
+from Arxiv import *
+from Pubmed import *
+from Scraper import *
+from Scraper_ACM import *
+from Scraper_TNNLS import *
 
 def resource_path(path_relativo):
     '''
@@ -22,53 +26,6 @@ def resource_path(path_relativo):
         # En el entorno de desarrollo, usa la ruta del script actual
         path_base = os.path.dirname(__file__)
     return os.path.join(path_base, path_relativo)
-
-def mostrar_datos():
-    '''  
-    Esta función obtiene la URL del usuario, verifica que no esté vacía y realiza un scraping de la página web. Muestra los datos extraídos en un widget de texto.
-    :param: None
-    :return: None
-    '''
-    
-    # Obtener la URL desde el campo de entrada
-    url = entrada_url.get()
-    
-    # Comprobar si la URL está vacía
-    if not url:
-        # Mostrar una advertencia si la URL está vacía
-        messagebox.showwarning("Input Error", "Por favor, inserte una URL valida")
-        return
-    
-    # Llamar a la función scrapear_web para obtener los datos de la URL
-    data = scrapear_web(url)
-    
-    # Verificar si el resultado de scrapear_web es un mensaje de error, es decir, un string
-    if isinstance(data, str):
-        # Borrar el contenido del widget de texto
-        widget.delete('1.0', tk.END)
-        # Insertar el mensaje de error en el widget de texto
-        widget.insert(tk.END, data)
-    else:
-        # Borrar el contenido del widget de texto
-        widget.delete('1.0', tk.END)
-        # Insertar el título de la página en el widget de texto
-        widget.insert(tk.END, f"Titulo: {data['titulo']}\n\n")
-        
-        # Insertar los párrafos de la página en el widget de texto
-        widget.insert(tk.END, "Parrafos:\n")
-        for p in data['parrafos']:
-            widget.insert(tk.END, f"{p}\n\n")
-        
-        # Insertar los enlaces de la página en el widget de texto
-        widget.insert(tk.END, "Links:\n")
-        for index, link in enumerate(data['links']):
-            insertar_link(widget, link['url'], link['text'], index)
-        
-        # Insertar las imágenes de la página en el widget de texto
-        widget.insert(tk.END, "Imagenes:\n")
-        for index, image in enumerate(data['imagenes']):
-            insertar_imagen(widget, image['src'], image['alt'], index)
-
 
            
 def insertar_link(widget, url, texto, index):
@@ -162,118 +119,21 @@ def mostrar_imagen(url):
     except Exception as e:
         # Muestra un mensaje de error si ocurre un problema al mostrar la imagen.
         messagebox.showerror("Error", f"Error al mostrar la imagen: {e}")
+
+def scraper_handler():
+    mostrar_datos(entrada_url, widget, insertar_link, insertar_imagen)
+
+def arxiv_handler():
+    mostrar_arxiv(query_arxiv, widget_arxiv, insertar_link)
         
-def mostrar_arxiv():
-    '''
-    Esta función recoge la query insertada por el usuario y scrapea sobre ella en arxiv, mostrando los resultados en un widget de texto
-    :param: None
-    :return: None
-    '''
-    
-    # Obtiene la query insertada por el usuario y verifica que no está vacía
-    query = query_arxiv.get()
-    if not query:
-        messagebox.showwarning("Input Error", "Por favor, introduzca una consulta valida")
-        return
-
-    # Scrapea en arxiv con la query insertada y verifica que haya resultados
-    resultados = scrapear_arxiv(query)
-    widget_arxiv.delete('1.0', tk.END)
-    if not resultados:
-        widget.insert(tk.END, "No se han encontrado resultados para esta consulta.")
-    # Introduce los datos obtenidos en el widget de texto
-    else:
-        for resultado in resultados:
-            widget_arxiv.insert(tk.END, f"Titulo: {resultado['titulo']}\n\n")
-            widget_arxiv.insert(tk.END, f"Autores: {resultado['autores']}\n\n")
-            widget_arxiv.insert(tk.END, f"Resumen: {resultado['resumen']}\n\n")
-            widget_arxiv.insert(tk.END, f"Fecha de publicacion: {resultado['fecha_publicacion']}\n\n")
-            widget_arxiv.insert(tk.END, f"Categorias: {resultado['categorias']}\n\n")
-            widget_arxiv.insert(tk.END, f"Comentarios: {resultado['comentarios']}\n\n")
-            widget_arxiv.insert(tk.END, f"Referencia Journal: {resultado['referencia_journal']}\n\n")
-            insertar_link(widget_arxiv, resultado['link'], resultado['link'], resultados.index(resultado))
-            widget_arxiv.insert(tk.END, "\n\n")
-
-
-def mostrar_pubmed():
-    '''
-    Esta función recoge la query insertada por el usuario y scrapea sobre ella en pubmed, mostrando los resultados en un widget de texto
-    :param: None
-    :return: None
-    '''
-    
-    # Obtiene la query insertada por el usuario y verifica que no está vacía
-    query = query_pubmed.get()
-    if not query:
-        messagebox.showwarning("Input Error", "Por favor, introduzca una consulta valida")
-        return
-
-    # Scrapea en arxiv con la query insertada y verifica que haya resultados
-    results = scrapear_pubmed(query)
-    widget_pubmed.delete('1.0', tk.END)
-    if not results:
-        widget_pubmed.insert(tk.END, "No se han encontrado resultados para esta consulta.")
-    # Introduce los datos obtenidos en el widget de texto
-    else:
-        for result in results:
-            widget_pubmed.insert(tk.END, f"Titulo: {result['titulo']}\n\n")
-            widget_pubmed.insert(tk.END, f"Autores: {result['autores']}\n\n")
-            widget_pubmed.insert(tk.END, f"Resumen: {result['resumen']}\n\n")
-            insertar_link(widget_pubmed, result['link'], result['link'], results.index(result))
-            widget_pubmed.insert(tk.END, "\n\n")
+def pubmed_handler():
+    mostrar_pubmed(query_pubmed, widget_pubmed, insertar_link)
             
-def mostrar_ACM():
-    '''
-    Esta función muestra los resultados del scrapeo de ACM en un widget de texto.
-    :param: None
-    :return: None
-    '''
-    
-    # Scrapea la página web de ACM y muestra los resultados en el widget de texto
-    url = 'https://dl.acm.org/journal/jetc/editorial-board'
-    try:
-        journal_name, datos = scrapear_ACM(url)
+def ACM_handler():
+    mostrar_ACM(widget_ACM)
 
-        # Insertar los datos en el widget de texto
-        widget_ACM.delete('1.0', tk.END)
-        widget_ACM.insert(tk.END, f"Journal Name: {journal_name}\n\n")
-        for data in datos:
-            widget_ACM.insert(tk.END, f"Rol: {data[0]}\n")
-            widget_ACM.insert(tk.END, f"Nombre: {data[1]}\n")
-            widget_ACM.insert(tk.END, f"Afiliación: {data[2]}\n")
-            widget_ACM.insert(tk.END, f"País: {data[3]}\n")
-            widget_ACM.insert(tk.END, "\n")
-
-    except Exception as e:
-        messagebox.showerror("Error", str(e))
-
-def mostrar_TNNLS():
-    '''
-    Función que muestra los datos scrapeados de TNNLS en el widget de texto.
-    :param: None
-    :return: None
-    '''
-    
-    # URL de la página web de TNNLS y scrapeo de datos
-    url = 'https://cis.ieee.org/publications/t-neural-networks-and-learning-systems/tnnls-editor-and-associate-editors'
-    
-    try:
-        journal_name, datos = scrapear_TNNLS(url)
-
-    # Mostrar los datos scrapeados en el widget de texto  
-        widget_TNNLS.delete('1.0', tk.END)
-        widget_TNNLS.insert(tk.END, f"Journal Name: {journal_name}\n\n")
-        for dato in datos:
-            widget_TNNLS.insert(tk.END, f"Rol: {dato[0]}\n")
-            widget_TNNLS.insert(tk.END, f"Nombre: {dato[1]}\n")
-            widget_TNNLS.insert(tk.END, f"Afiliación: {dato[2]}\n")
-            widget_TNNLS.insert(tk.END, f"País: {dato[3]}\n")
-            widget_TNNLS.insert(tk.END, f"Email: {dato[4]}\n")
-            widget_TNNLS.insert(tk.END, f"Web: {dato[5]}\n")
-            widget_TNNLS.insert(tk.END, "\n")
-
-    except Exception as e:
-        messagebox.showerror("Error", str(e))
+def TNNLS_handler():
+    mostrar_TNNLS(widget_TNNLS)
     
         
 #Interfaz de la aplicación
@@ -376,7 +236,7 @@ frame_url.pack(side=tk.TOP, fill=tk.X)
 ttk.Label(frame_url, text="Inserte URL:", font=("Times New Roman", 10)).pack(side=tk.LEFT)
 entrada_url = ttk.Entry(frame_url, width=50)
 entrada_url.pack(side=tk.LEFT, fill=tk.X, expand=True)
-tk.Button(frame_url, text="Scrapear", command=mostrar_datos, bg='#121DB8', fg='white', font=("Times New Roman", 10)).pack(side=tk.LEFT)
+tk.Button(frame_url, text="Scrapear", command=scraper_handler, bg='#121DB8', fg='white', font=("Times New Roman", 10)).pack(side=tk.LEFT)
 
 widget = ScrolledText(frames["Web Scraper"], wrap=tk.WORD, width=100, height=30)
 widget.pack(fill=tk.BOTH, expand=True)
@@ -387,7 +247,7 @@ arxiv_frame.pack(side=tk.TOP, fill=tk.X)
 ttk.Label(arxiv_frame, text="Inserte Consulta Arxiv:").pack(side=tk.LEFT)
 query_arxiv = ttk.Entry(arxiv_frame, width=50)
 query_arxiv.pack(side=tk.LEFT, fill=tk.X, expand=True)
-tk.Button(arxiv_frame, text="Scrapear", command=mostrar_arxiv, bg='#121DB8', fg='white', font=("Times New Roman", 10)).pack(side=tk.LEFT)
+tk.Button(arxiv_frame, text="Scrapear", command=arxiv_handler, bg='#121DB8', fg='white', font=("Times New Roman", 10)).pack(side=tk.LEFT)
 
 widget_arxiv = ScrolledText(frames["Arxiv"], wrap=tk.WORD, width=100, height=30)
 widget_arxiv.pack(fill=tk.BOTH, expand=True)
@@ -398,7 +258,7 @@ pubmed_frame.pack(side=tk.TOP, fill=tk.X)
 ttk.Label(pubmed_frame, text="Inserte Consulta Pubmed:").pack(side=tk.LEFT)
 query_pubmed = ttk.Entry(pubmed_frame, width=50)
 query_pubmed.pack(side=tk.LEFT, fill=tk.X, expand=True)
-tk.Button(pubmed_frame, text="Scrapear", command=mostrar_pubmed, bg='#121DB8', fg='white', font=("Times New Roman", 10)).pack(side=tk.LEFT)
+tk.Button(pubmed_frame, text="Scrapear", command=pubmed_handler, bg='#121DB8', fg='white', font=("Times New Roman", 10)).pack(side=tk.LEFT)
 
 widget_pubmed = ScrolledText(frames["PubMed"], wrap=tk.WORD, width=100, height=30)
 widget_pubmed.pack(fill=tk.BOTH, expand=True)
@@ -407,7 +267,7 @@ widget_pubmed.pack(fill=tk.BOTH, expand=True)
 frame_ACM = ttk.Frame(frames["Editorial Board ACM"], padding="10")
 frame_ACM.pack(side=tk.TOP, fill=tk.X)
 tk.Button(frame_ACM, text="Descargar Editorial Board CSV", command=guardar_ACM_en_CSV, bg='#121DB8', fg='white', font=("Times New Roman", 14)).pack(side=tk.LEFT, padx=10)
-tk.Button(frame_ACM, text="Ver Editorial Board", command=mostrar_ACM, bg='#121DB8', fg='white', font=("Times New Roman", 14)).pack(side=tk.LEFT, padx=10)
+tk.Button(frame_ACM, text="Ver Editorial Board", command=ACM_handler, bg='#121DB8', fg='white', font=("Times New Roman", 14)).pack(side=tk.LEFT, padx=10)
 link_ACM = tk.Label(frame_ACM, text="https://dl.acm.org/journal/jetc/editorial-board", fg="blue", cursor="hand2")
 link_ACM.pack(side=tk.LEFT)
 link_ACM.bind("<Button-1>", lambda e: abrir_link("https://dl.acm.org/journal/jetc/editorial-board"))
@@ -420,7 +280,7 @@ frame_TNNLS = ttk.Frame(frames["Editorial Board TNNLS"], padding="10")
 frame_TNNLS.pack(side=tk.TOP, fill=tk.X)
 
 tk.Button(frame_TNNLS, text="Descargar Editorial Board CSV", command=guardar_TNNLS_en_CSV, bg='#121DB8', fg='white', font=("Times New Roman", 14)).pack(side=tk.LEFT, padx=10)
-tk.Button(frame_TNNLS, text="Ver Editorial Board", command=mostrar_TNNLS, bg='#121DB8', fg='white', font=("Times New Roman", 14)).pack(side=tk.LEFT, padx=10)
+tk.Button(frame_TNNLS, text="Ver Editorial Board", command=TNNLS_handler, bg='#121DB8', fg='white', font=("Times New Roman", 14)).pack(side=tk.LEFT, padx=10)
 link_TNNLS = tk.Label(frame_TNNLS, text="https://cis.ieee.org/publications/t-neural-networks-and-learning-systems/tnnls-editor-and-associate-editors", fg="blue", cursor="hand2")
 link_TNNLS.pack(side=tk.LEFT, padx=10)
 link_TNNLS.bind("<Button-1>", lambda e: abrir_link("https://cis.ieee.org/publications/t-neural-networks-and-learning-systems/tnnls-editor-and-associate-editors"))
