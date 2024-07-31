@@ -18,10 +18,15 @@
   <a target="code" href="///C:/Users/adrim/PA/TFG/Interfaz.py" type="text/plain"><tt>Interfaz.py</tt></a>
 <span class="moduletype">Script</span>  <div class="import">
 imports:
-    <a href="#Funciones">Funciones</a>
+    <a href="#Arxiv">Arxiv</a>
  &#8226;   <a href="#PIL">PIL</a>
  &#8226;   <a href="#PIL.Image">PIL.Image</a>
  &#8226;   <a href="#PIL.ImageTk">PIL.ImageTk</a>
+ &#8226;   <a href="#Pubmed">Pubmed</a>
+ &#8226;   <a href="#Scraper">Scraper</a>
+ &#8226;   <a href="#Scraper_ACM">Scraper_ACM</a>
+ &#8226;   <a href="#Scraper_TNNLS">Scraper_TNNLS</a>
+ &#8226;   <a href="#Utils">Utils</a>
  &#8226;   <a href="#_collections_abc">_collections_abc</a>
  &#8226;   <a href="#_weakrefset">_weakrefset</a>
  &#8226;   <a href="#abc">abc</a>
@@ -175,21 +180,17 @@ imports:
  &#8226;   <a href="#re._constants">re._constants</a>
  &#8226;   <a href="#re._parser">re._parser</a>
  &#8226;   <a href="#reprlib">reprlib</a>
- &#8226;   <a href="#requests">requests</a>
  &#8226;   <a href="#sre_compile">sre_compile</a>
  &#8226;   <a href="#sre_constants">sre_constants</a>
  &#8226;   <a href="#sre_parse">sre_parse</a>
  &#8226;   <a href="#stat">stat</a>
- &#8226;   <a href="#sys">sys</a>
  &#8226;   <a href="#tkinter">tkinter</a>
- &#8226;   <a href="#tkinter.messagebox">tkinter.messagebox</a>
  &#8226;   <a href="#tkinter.scrolledtext">tkinter.scrolledtext</a>
  &#8226;   <a href="#tkinter.ttk">tkinter.ttk</a>
  &#8226;   <a href="#traceback">traceback</a>
  &#8226;   <a href="#types">types</a>
  &#8226;   <a href="#warnings">warnings</a>
  &#8226;   <a href="#weakref">weakref</a>
- &#8226;   <a href="#webbrowser">webbrowser</a>
 
   </div>
 
@@ -408,7 +409,7 @@ imported by:
   <a target="code" href="" type="text/plain"><tt>'org.python'</tt></a>
 <span class="moduletype">MissingModule</span>  <div class="import">
 imported by:
-    <a href="#copy">copy</a>
+    <a href="#pickle">pickle</a>
  &#8226;   <a href="#xml.sax">xml.sax</a>
 
   </div>
@@ -625,35 +626,31 @@ imported by:
 </div>
 
 <div class="node">
-  <a name="BeautifulSoup"></a>
-  <a target="code" href="" type="text/plain"><tt>BeautifulSoup</tt></a>
-<span class="moduletype">MissingModule</span>  <div class="import">
+  <a name="Arxiv"></a>
+  <a target="code" href="///C:/Users/adrim/PA/TFG/Arxiv.py" type="text/plain"><tt>Arxiv</tt></a>
+<span class="moduletype">SourceModule</span>  <div class="import">
+imports:
+    <a href="#feedparser">feedparser</a>
+ &#8226;   <a href="#requests">requests</a>
+ &#8226;   <a href="#tkinter">tkinter</a>
+ &#8226;   <a href="#tkinter.messagebox">tkinter.messagebox</a>
+
+  </div>
+  <div class="import">
 imported by:
-    <a href="#lxml.html.soupparser">lxml.html.soupparser</a>
+    <a href="#Interfaz.py">Interfaz.py</a>
+ &#8226;   <a href="#Utils">Utils</a>
 
   </div>
 
 </div>
 
 <div class="node">
-  <a name="Funciones"></a>
-  <a target="code" href="///C:/Users/adrim/PA/TFG/Funciones.py" type="text/plain"><tt>Funciones</tt></a>
-<span class="moduletype">SourceModule</span>  <div class="import">
-imports:
-    <a href="#bs4">bs4</a>
- &#8226;   <a href="#csv">csv</a>
- &#8226;   <a href="#feedparser">feedparser</a>
- &#8226;   <a href="#os">os</a>
- &#8226;   <a href="#requests">requests</a>
- &#8226;   <a href="#tkinter">tkinter</a>
- &#8226;   <a href="#tkinter.filedialog">tkinter.filedialog</a>
- &#8226;   <a href="#tkinter.messagebox">tkinter.messagebox</a>
- &#8226;   <a href="#urllib.parse">urllib.parse</a>
-
-  </div>
-  <div class="import">
+  <a name="BeautifulSoup"></a>
+  <a target="code" href="" type="text/plain"><tt>BeautifulSoup</tt></a>
+<span class="moduletype">MissingModule</span>  <div class="import">
 imported by:
-    <a href="#Interfaz.py">Interfaz.py</a>
+    <a href="#lxml.html.soupparser">lxml.html.soupparser</a>
 
   </div>
 
@@ -799,6 +796,7 @@ imported by:
  &#8226;   <a href="#PIL._version">PIL._version</a>
  &#8226;   <a href="#PIL._webp">PIL._webp</a>
  &#8226;   <a href="#PIL.features">PIL.features</a>
+ &#8226;   <a href="#Utils">Utils</a>
 
   </div>
 
@@ -1450,6 +1448,7 @@ imported by:
  &#8226;   <a href="#PIL.XbmImagePlugin">PIL.XbmImagePlugin</a>
  &#8226;   <a href="#PIL.XpmImagePlugin">PIL.XpmImagePlugin</a>
  &#8226;   <a href="#PIL.features">PIL.features</a>
+ &#8226;   <a href="#Utils">Utils</a>
 
   </div>
 
@@ -1826,6 +1825,7 @@ imported by:
     <a href="#Interfaz.py">Interfaz.py</a>
  &#8226;   <a href="#PIL">PIL</a>
  &#8226;   <a href="#PIL.SpiderImagePlugin">PIL.SpiderImagePlugin</a>
+ &#8226;   <a href="#Utils">Utils</a>
 
   </div>
 
@@ -2879,6 +2879,124 @@ imported by:
     <a href="#PIL">PIL</a>
  &#8226;   <a href="#PIL.IcnsImagePlugin">PIL.IcnsImagePlugin</a>
  &#8226;   <a href="#PIL.PdfImagePlugin">PIL.PdfImagePlugin</a>
+
+  </div>
+
+</div>
+
+<div class="node">
+  <a name="Pubmed"></a>
+  <a target="code" href="///C:/Users/adrim/PA/TFG/Pubmed.py" type="text/plain"><tt>Pubmed</tt></a>
+<span class="moduletype">SourceModule</span>  <div class="import">
+imports:
+    <a href="#bs4">bs4</a>
+ &#8226;   <a href="#requests">requests</a>
+ &#8226;   <a href="#tkinter">tkinter</a>
+ &#8226;   <a href="#tkinter.messagebox">tkinter.messagebox</a>
+ &#8226;   <a href="#urllib.parse">urllib.parse</a>
+
+  </div>
+  <div class="import">
+imported by:
+    <a href="#Interfaz.py">Interfaz.py</a>
+ &#8226;   <a href="#Utils">Utils</a>
+
+  </div>
+
+</div>
+
+<div class="node">
+  <a name="Scraper"></a>
+  <a target="code" href="///C:/Users/adrim/PA/TFG/Scraper.py" type="text/plain"><tt>Scraper</tt></a>
+<span class="moduletype">SourceModule</span>  <div class="import">
+imports:
+    <a href="#bs4">bs4</a>
+ &#8226;   <a href="#requests">requests</a>
+ &#8226;   <a href="#tkinter">tkinter</a>
+ &#8226;   <a href="#tkinter.messagebox">tkinter.messagebox</a>
+ &#8226;   <a href="#urllib.parse">urllib.parse</a>
+
+  </div>
+  <div class="import">
+imported by:
+    <a href="#Interfaz.py">Interfaz.py</a>
+ &#8226;   <a href="#Utils">Utils</a>
+
+  </div>
+
+</div>
+
+<div class="node">
+  <a name="Scraper_ACM"></a>
+  <a target="code" href="///C:/Users/adrim/PA/TFG/Scraper_ACM.py" type="text/plain"><tt>Scraper_ACM</tt></a>
+<span class="moduletype">SourceModule</span>  <div class="import">
+imports:
+    <a href="#bs4">bs4</a>
+ &#8226;   <a href="#csv">csv</a>
+ &#8226;   <a href="#os">os</a>
+ &#8226;   <a href="#requests">requests</a>
+ &#8226;   <a href="#tkinter">tkinter</a>
+ &#8226;   <a href="#tkinter.filedialog">tkinter.filedialog</a>
+ &#8226;   <a href="#tkinter.messagebox">tkinter.messagebox</a>
+
+  </div>
+  <div class="import">
+imported by:
+    <a href="#Interfaz.py">Interfaz.py</a>
+ &#8226;   <a href="#Utils">Utils</a>
+
+  </div>
+
+</div>
+
+<div class="node">
+  <a name="Scraper_TNNLS"></a>
+  <a target="code" href="///C:/Users/adrim/PA/TFG/Scraper_TNNLS.py" type="text/plain"><tt>Scraper_TNNLS</tt></a>
+<span class="moduletype">SourceModule</span>  <div class="import">
+imports:
+    <a href="#bs4">bs4</a>
+ &#8226;   <a href="#csv">csv</a>
+ &#8226;   <a href="#os">os</a>
+ &#8226;   <a href="#requests">requests</a>
+ &#8226;   <a href="#tkinter">tkinter</a>
+ &#8226;   <a href="#tkinter.filedialog">tkinter.filedialog</a>
+ &#8226;   <a href="#tkinter.messagebox">tkinter.messagebox</a>
+
+  </div>
+  <div class="import">
+imported by:
+    <a href="#Interfaz.py">Interfaz.py</a>
+ &#8226;   <a href="#Utils">Utils</a>
+
+  </div>
+
+</div>
+
+<div class="node">
+  <a name="Utils"></a>
+  <a target="code" href="///C:/Users/adrim/PA/TFG/Utils.py" type="text/plain"><tt>Utils</tt></a>
+<span class="moduletype">SourceModule</span>  <div class="import">
+imports:
+    <a href="#Arxiv">Arxiv</a>
+ &#8226;   <a href="#PIL">PIL</a>
+ &#8226;   <a href="#PIL.Image">PIL.Image</a>
+ &#8226;   <a href="#PIL.ImageTk">PIL.ImageTk</a>
+ &#8226;   <a href="#Pubmed">Pubmed</a>
+ &#8226;   <a href="#Scraper">Scraper</a>
+ &#8226;   <a href="#Scraper_ACM">Scraper_ACM</a>
+ &#8226;   <a href="#Scraper_TNNLS">Scraper_TNNLS</a>
+ &#8226;   <a href="#io">io</a>
+ &#8226;   <a href="#os">os</a>
+ &#8226;   <a href="#requests">requests</a>
+ &#8226;   <a href="#sys">sys</a>
+ &#8226;   <a href="#tkinter">tkinter</a>
+ &#8226;   <a href="#tkinter.messagebox">tkinter.messagebox</a>
+ &#8226;   <a href="#webbrowser">webbrowser</a>
+
+  </div>
+  <div class="import">
+imported by:
+    <a href="#Interfaz.py">Interfaz.py</a>
 
   </div>
 
@@ -5425,7 +5543,10 @@ imports:
   </div>
   <div class="import">
 imported by:
-    <a href="#Funciones">Funciones</a>
+    <a href="#Pubmed">Pubmed</a>
+ &#8226;   <a href="#Scraper">Scraper</a>
+ &#8226;   <a href="#Scraper_ACM">Scraper_ACM</a>
+ &#8226;   <a href="#Scraper_TNNLS">Scraper_TNNLS</a>
  &#8226;   <a href="#bs4.builder">bs4.builder</a>
  &#8226;   <a href="#bs4.builder._html5lib">bs4.builder._html5lib</a>
  &#8226;   <a href="#bs4.css">bs4.css</a>
@@ -7170,8 +7291,8 @@ imported by:
   <a target="code" href="///C:/Python311/Lib/copy.py" type="text/plain"><tt>copy</tt></a>
 <span class="moduletype">SourceModule</span>  <div class="import">
 imports:
-    <a href="#'org.python'">'org.python'</a>
- &#8226;   <a href="#copyreg">copyreg</a>
+    <a href="#copyreg">copyreg</a>
+ &#8226;   <a href="#org">org</a>
  &#8226;   <a href="#types">types</a>
  &#8226;   <a href="#weakref">weakref</a>
 
@@ -7262,7 +7383,8 @@ imports:
   </div>
   <div class="import">
 imported by:
-    <a href="#Funciones">Funciones</a>
+    <a href="#Scraper_ACM">Scraper_ACM</a>
+ &#8226;   <a href="#Scraper_TNNLS">Scraper_TNNLS</a>
  &#8226;   <a href="#importlib.metadata">importlib.metadata</a>
  &#8226;   <a href="#setuptools._vendor.importlib_metadata">setuptools._vendor.importlib_metadata</a>
  &#8226;   <a href="#setuptools._vendor.wheel.wheelfile">setuptools._vendor.wheel.wheelfile</a>
@@ -11644,7 +11766,7 @@ imports:
   </div>
   <div class="import">
 imported by:
-    <a href="#Funciones">Funciones</a>
+    <a href="#Arxiv">Arxiv</a>
  &#8226;   <a href="#feedparser">feedparser</a>
  &#8226;   <a href="#feedparser.api">feedparser.api</a>
  &#8226;   <a href="#feedparser.datetimes">feedparser.datetimes</a>
@@ -12873,7 +12995,6 @@ imported by:
 <span class="moduletype">Package</span>  <div class="import">
 imports:
     <a href="#enum">enum</a>
- &#8226;   <a href="#http.cookiejar">http.cookiejar</a>
 
   </div>
   <div class="import">
@@ -12948,8 +13069,7 @@ imports:
   </div>
   <div class="import">
 imported by:
-    <a href="#http">http</a>
- &#8226;   <a href="#requests.compat">requests.compat</a>
+    <a href="#requests.compat">requests.compat</a>
  &#8226;   <a href="#urllib.request">urllib.request</a>
 
   </div>
@@ -13173,7 +13293,6 @@ imports:
  &#8226;   <a href="#importlib">importlib</a>
  &#8226;   <a href="#importlib._bootstrap">importlib._bootstrap</a>
  &#8226;   <a href="#importlib._bootstrap_external">importlib._bootstrap_external</a>
- &#8226;   <a href="#importlib.machinery">importlib.machinery</a>
  &#8226;   <a href="#sys">sys</a>
  &#8226;   <a href="#warnings">warnings</a>
 
@@ -13331,7 +13450,6 @@ imported by:
  &#8226;   <a href="#cffi.verifier">cffi.verifier</a>
  &#8226;   <a href="#ctypes.util">ctypes.util</a>
  &#8226;   <a href="#imp">imp</a>
- &#8226;   <a href="#importlib">importlib</a>
  &#8226;   <a href="#importlib.abc">importlib.abc</a>
  &#8226;   <a href="#inspect">inspect</a>
  &#8226;   <a href="#packaging.tags">packaging.tags</a>
@@ -13834,6 +13952,7 @@ imported by:
  &#8226;   <a href="#PIL.PsdImagePlugin">PIL.PsdImagePlugin</a>
  &#8226;   <a href="#PIL.TiffImagePlugin">PIL.TiffImagePlugin</a>
  &#8226;   <a href="#PIL.WebPImagePlugin">PIL.WebPImagePlugin</a>
+ &#8226;   <a href="#Utils">Utils</a>
  &#8226;   <a href="#_compression">_compression</a>
  &#8226;   <a href="#asyncio.proactor_events">asyncio.proactor_events</a>
  &#8226;   <a href="#asyncio.unix_events">asyncio.unix_events</a>
@@ -16117,7 +16236,7 @@ imported by:
   <a target="code" href="" type="text/plain"><tt>org</tt></a>
 <span class="moduletype">MissingModule</span>  <div class="import">
 imported by:
-    <a href="#pickle">pickle</a>
+    <a href="#copy">copy</a>
 
   </div>
 
@@ -16144,8 +16263,7 @@ imports:
   </div>
   <div class="import">
 imported by:
-    <a href="#Funciones">Funciones</a>
- &#8226;   <a href="#Interfaz.py">Interfaz.py</a>
+    <a href="#Interfaz.py">Interfaz.py</a>
  &#8226;   <a href="#PIL.BlpImagePlugin">PIL.BlpImagePlugin</a>
  &#8226;   <a href="#PIL.BmpImagePlugin">PIL.BmpImagePlugin</a>
  &#8226;   <a href="#PIL.EpsImagePlugin">PIL.EpsImagePlugin</a>
@@ -16167,6 +16285,9 @@ imported by:
  &#8226;   <a href="#PIL._typing">PIL._typing</a>
  &#8226;   <a href="#PIL._util">PIL._util</a>
  &#8226;   <a href="#PIL.features">PIL.features</a>
+ &#8226;   <a href="#Scraper_ACM">Scraper_ACM</a>
+ &#8226;   <a href="#Scraper_TNNLS">Scraper_TNNLS</a>
+ &#8226;   <a href="#Utils">Utils</a>
  &#8226;   <a href="#_bootsubprocess">_bootsubprocess</a>
  &#8226;   <a href="#_distutils_hack">_distutils_hack</a>
  &#8226;   <a href="#_osx_support">_osx_support</a>
@@ -16878,14 +16999,14 @@ imported by:
   <a target="code" href="///C:/Python311/Lib/pickle.py" type="text/plain"><tt>pickle</tt></a>
 <span class="moduletype">SourceModule</span>  <div class="import">
 imports:
-    <a href="#_compat_pickle">_compat_pickle</a>
+    <a href="#'org.python'">'org.python'</a>
+ &#8226;   <a href="#_compat_pickle">_compat_pickle</a>
  &#8226;   <a href="#_pickle">_pickle</a>
  &#8226;   <a href="#codecs">codecs</a>
  &#8226;   <a href="#copyreg">copyreg</a>
  &#8226;   <a href="#functools">functools</a>
  &#8226;   <a href="#io">io</a>
  &#8226;   <a href="#itertools">itertools</a>
- &#8226;   <a href="#org">org</a>
  &#8226;   <a href="#pprint">pprint</a>
  &#8226;   <a href="#re">re</a>
  &#8226;   <a href="#struct">struct</a>
@@ -19155,8 +19276,12 @@ imports:
   </div>
   <div class="import">
 imported by:
-    <a href="#Funciones">Funciones</a>
- &#8226;   <a href="#Interfaz.py">Interfaz.py</a>
+    <a href="#Arxiv">Arxiv</a>
+ &#8226;   <a href="#Pubmed">Pubmed</a>
+ &#8226;   <a href="#Scraper">Scraper</a>
+ &#8226;   <a href="#Scraper_ACM">Scraper_ACM</a>
+ &#8226;   <a href="#Scraper_TNNLS">Scraper_TNNLS</a>
+ &#8226;   <a href="#Utils">Utils</a>
  &#8226;   <a href="#requests">requests</a>
  &#8226;   <a href="#requests.__version__">requests.__version__</a>
  &#8226;   <a href="#requests._internal_utils">requests._internal_utils</a>
@@ -25346,8 +25471,7 @@ imported by:
   <a name="sys"></a>
   <tt>sys</tt> <span class="moduletype"><i>(builtin module)</i></span>  <div class="import">
 imported by:
-    <a href="#Interfaz.py">Interfaz.py</a>
- &#8226;   <a href="#PIL.DdsImagePlugin">PIL.DdsImagePlugin</a>
+    <a href="#PIL.DdsImagePlugin">PIL.DdsImagePlugin</a>
  &#8226;   <a href="#PIL.EpsImagePlugin">PIL.EpsImagePlugin</a>
  &#8226;   <a href="#PIL.GifImagePlugin">PIL.GifImagePlugin</a>
  &#8226;   <a href="#PIL.IcnsImagePlugin">PIL.IcnsImagePlugin</a>
@@ -25362,6 +25486,7 @@ imported by:
  &#8226;   <a href="#PIL.SpiderImagePlugin">PIL.SpiderImagePlugin</a>
  &#8226;   <a href="#PIL._typing">PIL._typing</a>
  &#8226;   <a href="#PIL.features">PIL.features</a>
+ &#8226;   <a href="#Utils">Utils</a>
  &#8226;   <a href="#_aix_support">_aix_support</a>
  &#8226;   <a href="#_collections_abc">_collections_abc</a>
  &#8226;   <a href="#_compression">_compression</a>
@@ -25984,8 +26109,13 @@ imports:
   </div>
   <div class="import">
 imported by:
-    <a href="#Funciones">Funciones</a>
+    <a href="#Arxiv">Arxiv</a>
  &#8226;   <a href="#Interfaz.py">Interfaz.py</a>
+ &#8226;   <a href="#Pubmed">Pubmed</a>
+ &#8226;   <a href="#Scraper">Scraper</a>
+ &#8226;   <a href="#Scraper_ACM">Scraper_ACM</a>
+ &#8226;   <a href="#Scraper_TNNLS">Scraper_TNNLS</a>
+ &#8226;   <a href="#Utils">Utils</a>
  &#8226;   <a href="#tkinter.commondialog">tkinter.commondialog</a>
  &#8226;   <a href="#tkinter.constants">tkinter.constants</a>
  &#8226;   <a href="#tkinter.dialog">tkinter.dialog</a>
@@ -26066,7 +26196,8 @@ imports:
   </div>
   <div class="import">
 imported by:
-    <a href="#Funciones">Funciones</a>
+    <a href="#Scraper_ACM">Scraper_ACM</a>
+ &#8226;   <a href="#Scraper_TNNLS">Scraper_TNNLS</a>
  &#8226;   <a href="#tkinter">tkinter</a>
 
   </div>
@@ -26084,8 +26215,12 @@ imports:
   </div>
   <div class="import">
 imported by:
-    <a href="#Funciones">Funciones</a>
- &#8226;   <a href="#Interfaz.py">Interfaz.py</a>
+    <a href="#Arxiv">Arxiv</a>
+ &#8226;   <a href="#Pubmed">Pubmed</a>
+ &#8226;   <a href="#Scraper">Scraper</a>
+ &#8226;   <a href="#Scraper_ACM">Scraper_ACM</a>
+ &#8226;   <a href="#Scraper_TNNLS">Scraper_TNNLS</a>
+ &#8226;   <a href="#Utils">Utils</a>
  &#8226;   <a href="#tkinter">tkinter</a>
  &#8226;   <a href="#tkinter.simpledialog">tkinter.simpledialog</a>
 
@@ -27108,7 +27243,8 @@ imports:
   </div>
   <div class="import">
 imported by:
-    <a href="#Funciones">Funciones</a>
+    <a href="#Pubmed">Pubmed</a>
+ &#8226;   <a href="#Scraper">Scraper</a>
  &#8226;   <a href="#cgi">cgi</a>
  &#8226;   <a href="#email.utils">email.utils</a>
  &#8226;   <a href="#feedparser.api">feedparser.api</a>
@@ -28513,7 +28649,7 @@ imports:
   </div>
   <div class="import">
 imported by:
-    <a href="#Interfaz.py">Interfaz.py</a>
+    <a href="#Utils">Utils</a>
  &#8226;   <a href="#lxml.html">lxml.html</a>
  &#8226;   <a href="#pydoc">pydoc</a>
 
