@@ -1,6 +1,6 @@
 import requests
 from bs4 import BeautifulSoup
-from tkinter import messagebox, filedialog
+from tkinter import messagebox
 from urllib.parse import urljoin
 import tkinter as tk
 

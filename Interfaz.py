@@ -1,12 +1,7 @@
-import requests
 import tkinter as tk
-from tkinter import ttk, messagebox
+from tkinter import ttk
 from tkinter.scrolledtext import ScrolledText
-from io import BytesIO
 from PIL import Image, ImageTk
-import webbrowser
-import os
-import sys
 from Arxiv import *
 from Pubmed import *
 from Scraper import *
@@ -16,18 +11,38 @@ from Utils import *
 
 
 def scraper_handler():
+    '''
+    Esta función se encarga de manejar la presentación de los datos del scrapeo web
+    : return: None
+    '''
     mostrar_datos(entrada_url, widget, insertar_link, insertar_imagen)
 
 def arxiv_handler():
+    '''
+    Esta función se encarga de manejar la presentación de los datos de arxiv
+    : return: None
+    '''
     mostrar_arxiv(query_arxiv, widget_arxiv, insertar_link)
         
 def pubmed_handler():
+    '''
+    Esta función se encarga de manejar la presentación de los datos de pubmed
+    : return: None
+    '''
     mostrar_pubmed(query_pubmed, widget_pubmed, insertar_link)
             
 def ACM_handler():
+    '''
+    Esta función se encarga de manejar la presentación de los datos de ACM
+    : return: None
+    '''
     mostrar_ACM(widget_ACM)
 
 def TNNLS_handler():
+    '''
+    Esta función se encarga de manejar la presentación de los datos de TNNLS
+    : return: None
+    '''
     mostrar_TNNLS(widget_TNNLS)
     
         

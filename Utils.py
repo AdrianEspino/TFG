@@ -1,8 +1,6 @@
-from logging import root
 import requests
 import tkinter as tk
-from tkinter import ttk, messagebox
-from tkinter.scrolledtext import ScrolledText
+from tkinter import messagebox
 from io import BytesIO
 from PIL import Image, ImageTk
 import webbrowser
