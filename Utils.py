@@ -6,11 +6,6 @@ from PIL import Image, ImageTk
 import webbrowser
 import os
 import sys
-from Arxiv import *
-from Pubmed import *
-from Scraper import *
-from Scraper_ACM import *
-from Scraper_TNNLS import *
 
 def resource_path(path_relativo):
     '''
