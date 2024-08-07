@@ -7,7 +7,7 @@ import tkinter as tk
 def scrapear_pubmed(query):
     '''
     Busca artículos en pubmed utilizando una consulta y devuelve una lista de resultados.
-    :param query: str - La consulta de búsqueda para encontrar artículos en arXiv.
+    :param query: str - La consulta de búsqueda para encontrar artículos en pubmed.
     :return: list - Una lista de diccionarios, cada uno representando un artículo con su título, resumen y enlace.
     '''
     
@@ -41,7 +41,7 @@ def mostrar_pubmed(query_pubmed,widget_pubmed,insertar_link):
         messagebox.showwarning("Input Error", "Por favor, introduzca una consulta valida")
         return
 
-    # Scrapea en arxiv con la query insertada y verifica que haya resultados
+    # Scrapea en pubmed con la query insertada y verifica que haya resultados
     results = scrapear_pubmed(query)
     widget_pubmed.delete('1.0', tk.END)
     if not results:
